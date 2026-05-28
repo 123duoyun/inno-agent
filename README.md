@@ -27,6 +27,8 @@ The PI SDK packages (`@earendil-works/pi-ai`, `@earendil-works/pi-coding-agent`,
 
 ## Quick Start
 
+新用户从 **[QUICKSTART.md](./QUICKSTART.md)** 开始（5 分钟跑起来）。下面是简版：
+
 ```bash
 git clone <your-fork-url> inno-agent
 cd inno-agent
