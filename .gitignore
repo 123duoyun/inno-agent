@@ -25,3 +25,4 @@ graphify-out/
 
 # Icon build intermediates (keep icon.svg/icns/png)
 build/icon.iconset/
+".npmrc" 
