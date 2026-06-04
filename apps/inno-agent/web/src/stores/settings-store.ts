@@ -34,7 +34,10 @@ class SettingsStoreImpl extends EventEmitter<SettingsStoreEvents> {
 		this.error = null;
 		this.emit("change", undefined);
 		try {
-			const next = await switchBackendModel(provider, model);
+			const timeout = new Promise<never>((_, reject) =>
+				setTimeout(() => reject(new Error("Switch model timed out")), 10_000),
+			);
+			const next = await Promise.race([switchBackendModel(provider, model), timeout]);
 			if (this.settings) {
 				this.settings = {
 					...this.settings,

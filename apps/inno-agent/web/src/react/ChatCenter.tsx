@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { Paperclip, X, SendHorizonal, Square, RotateCcw, Check, Image } from "lucide-react";
 import type { ChatMessage } from "../types/chat.js";
@@ -40,7 +41,38 @@ function ChannelBadge({ channel }: { channel: string }) {
 	);
 }
 
+function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
+	useEffect(() => {
+		const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+		window.addEventListener("keydown", handler);
+		return () => window.removeEventListener("keydown", handler);
+	}, [onClose]);
+
+	return createPortal(
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+			onClick={onClose}
+		>
+			<img
+				src={src}
+				alt="enlarged"
+				className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+				onClick={(e) => e.stopPropagation()}
+			/>
+			<button
+				className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40"
+				onClick={onClose}
+			>
+				<X size={16} />
+			</button>
+		</div>,
+		document.body,
+	);
+}
+
 function MessageBubble({ message, showChannel }: { message: ChatMessage; showChannel?: boolean }) {
+	const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
 	if (message.role === "user") {
 		return (
 			<motion.div
@@ -56,10 +88,17 @@ function MessageBubble({ message, showChannel }: { message: ChatMessage; showCha
 					{message.images?.length ? (
 						<div className="mb-2 flex flex-wrap gap-1.5">
 							{message.images.map((img, i) => (
-								<img key={i} src={img.previewUrl} alt="attached" className="max-h-48 max-w-full rounded object-contain" />
+								<img
+									key={i}
+									src={img.previewUrl}
+									alt="attached"
+									className="max-h-48 max-w-full cursor-zoom-in rounded object-contain"
+									onClick={() => setLightboxSrc(img.previewUrl)}
+								/>
 							))}
 						</div>
 					) : null}
+					{lightboxSrc ? <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} /> : null}
 					{message.content.trim()}
 				</div>
 			</motion.div>
