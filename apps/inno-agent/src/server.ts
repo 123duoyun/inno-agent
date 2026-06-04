@@ -403,6 +403,26 @@ function textFromContent(content: unknown): string {
 		.trim();
 }
 
+function imagesFromContent(content: unknown): Array<{ previewUrl: string; mimeType: string }> {
+	if (!Array.isArray(content)) return [];
+	const result: Array<{ previewUrl: string; mimeType: string }> = [];
+	for (const part of content) {
+		if (!part || typeof part !== "object") continue;
+		const record = part as Record<string, unknown>;
+		if (
+			record.type === "image" &&
+			typeof record.data === "string" &&
+			typeof record.mimeType === "string"
+		) {
+			result.push({
+				previewUrl: `data:${record.mimeType};base64,${record.data}`,
+				mimeType: record.mimeType,
+			});
+		}
+	}
+	return result;
+}
+
 function sanitizeUploadName(name: string): string {
 	const cleaned = name
 		.replace(/[/\\?%*:|"<>]/g, "-")
@@ -889,6 +909,7 @@ interface SessionMessageSummary {
 		isError?: boolean;
 	}>;
 	channel?: SessionChannel;
+	images?: Array<{ previewUrl: string; mimeType: string }>;
 }
 
 type SessionChannel = "cli" | "web" | "feishu" | "qq" | "wechat" | "scheduler" | "unknown";
@@ -988,7 +1009,10 @@ function parseSessionFile(filePath: string): { summary: SessionSummary; messages
 				finalizeAssistant();
 				const content = textFromContent(message.content);
 				if (!content) continue;
-				messages.push({ role: "user", content, timestamp: ts, channel: entryChannel });
+				const images = imagesFromContent(message.content);
+				const msg: SessionMessageSummary = { role: "user", content, timestamp: ts, channel: entryChannel };
+				if (images.length > 0) msg.images = images;
+				messages.push(msg);
 				continue;
 			}
 

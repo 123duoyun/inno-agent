@@ -206,22 +206,22 @@ function modelConfigToProviderModel(model: InnoConfig["providers"][string]["mode
 
 /**
  * Re-register configured providers for the active runtime after config changes.
+ * Bypasses the enqueue queue — this is pure in-memory registry work and must
+ * not block on a running prompt.
  */
 export async function refreshConfiguredProviders(config: InnoConfig): Promise<void> {
 	if (!_runtime) throw new Error("Session not initialized. Call initSession() first.");
-	await enqueue(async () => {
-		_config = config;
-		if (_configHolder) _configHolder.current = config;
-		for (const [providerId, providerConfig] of Object.entries(config.providers)) {
-			_runtime!.session.modelRegistry.registerProvider(providerId, {
-				baseUrl: providerConfig.baseUrl,
-				apiKey: providerConfig.apiKey || "local",
-				api: providerConfig.api ?? "openai-completions",
-				models: providerConfig.models.map(modelConfigToProviderModel),
-			});
-		}
-		_runtime!.session.modelRegistry.refresh();
-	});
+	_config = config;
+	if (_configHolder) _configHolder.current = config;
+	for (const [providerId, providerConfig] of Object.entries(config.providers)) {
+		_runtime.session.modelRegistry.registerProvider(providerId, {
+			baseUrl: providerConfig.baseUrl,
+			apiKey: providerConfig.apiKey || "local",
+			api: providerConfig.api ?? "openai-completions",
+			models: providerConfig.models.map(modelConfigToProviderModel),
+		});
+	}
+	_runtime.session.modelRegistry.refresh();
 }
 
 export function syncConfig(config: InnoConfig): void {
@@ -256,17 +256,17 @@ export function getAvailableModels() {
 
 /**
  * Switch the active runtime model and persist it as the default PI model.
+ * Intentionally bypasses the enqueue queue so it can execute immediately
+ * even while a prompt is streaming, avoiding UI lockup.
  */
 export async function switchModel(provider: string, modelId: string): Promise<void> {
 	if (!_runtime) throw new Error("Session not initialized. Call initSession() first.");
-	await enqueue(async () => {
-		_runtime!.session.modelRegistry.refresh();
-		const model = _runtime!.session.modelRegistry.find(provider, modelId);
-		if (!model) {
-			throw new Error(`Model ${provider}/${modelId} not found`);
-		}
-		await _runtime!.session.setModel(model);
-	});
+	_runtime.session.modelRegistry.refresh();
+	const model = _runtime.session.modelRegistry.find(provider, modelId);
+	if (!model) {
+		throw new Error(`Model ${provider}/${modelId} not found`);
+	}
+	await _runtime.session.setModel(model);
 }
 
 /**
