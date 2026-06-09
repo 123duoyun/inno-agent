@@ -4,6 +4,7 @@ import type { ChannelRegistry } from "../channels/channel.js";
 import { appendAssistantNotification, getCurrentSessionChannelHint, runPromptSerialized } from "../agent/pi-runner.js";
 import { computeNextRunAt, isOneShotCron } from "./cron-utils.js";
 import { randomUUID } from "node:crypto";
+import { logger } from "../logger.js";
 
 export interface JobRunResult {
 	jobId: string;

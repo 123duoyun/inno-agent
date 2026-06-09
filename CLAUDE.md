@@ -14,7 +14,11 @@ This is an npm workspaces monorepo (Node.js >=20.6.0, ES modules) for **Inno Age
 
 PI SDK packages (`@earendil-works/pi-ai`, `@earendil-works/pi-coding-agent`, `@earendil-works/pi-web-ui`) are pulled from npm.
 
-There is no top-level lint or test runner wired up. `vitest` is a dev dependency but no test scripts or test files exist — the TypeScript build (`npm run build`) serves as the sanity check.
+Key dependencies: `ws` (WebSocket), `node-pty` (PTY terminal), `cron-parser` (scheduler), `@larksuiteoapi/node-sdk` (Feishu), `typebox` (validation), `undici` (HTTP client), `pi-subagents` (optional subagent support), `pi-sandbox` (optional OS-level sandboxing).
+
+`vitest` is a dev dependency but no test scripts or test files exist — the TypeScript build (`npm run build`) serves as the sanity check.
+
+Backend TypeScript targets **ES2022** with **Node16** module resolution (see `apps/inno-agent/tsconfig.json`).
 
 ## Common Commands
 
@@ -33,6 +37,10 @@ npm run start -- --home ./runtime --workspace ./workspace
 # Dev: run server and Vite dev separately
 npm run dev:server      # backend on :3000
 npm run web:dev         # Vite on :5173, proxies /api -> :3000
+
+# Sandbox mode (pi-sandbox enabled, isolates agent tool execution)
+npm run sandbox -- --home ./runtime --workspace ./workspace
+npm run server:sandbox -- --home ./runtime --workspace ./workspace --port 3000
 ```
 
 ### Dev restart rules
@@ -44,7 +52,7 @@ npm run web:dev         # Vite on :5173, proxies /api -> :3000
 
 ### restart-dev.sh
 
-The `restart-dev.sh` script at the repo root orchestrates the full dev lifecycle: `build`, `start`, `stop`, `status`, `logs`, `smoke`. Supports `--mode dev|prod` and `--skip-build`. Run `bash restart-dev.sh --help` for details. Useful for resetting to a clean state when things go wrong.
+The `restart-dev.sh` script at the repo root orchestrates the full dev lifecycle: `build`, `start`, `stop`, `status`, `logs`, `smoke`. Supports `--mode dev|prod`, `--skip-build`, `--sandbox`/`--no-sandbox`. Run `bash restart-dev.sh --help` for details. Equivalent npm shortcut: `npm run restart:fast` (skips build).
 
 ### Electron desktop builds
 
@@ -78,7 +86,7 @@ Precedence: CLI flag → env var → `~/.inno-agent/...`.
 | `--workspace` / `--workspace-dir` | `INNO_WORKSPACE_DIR` | invocation CWD |
 | `--port` | `INNO_PORT` (via config) | `3000` |
 
-Derived paths inside `dataDir`: `learner/`, `sessions/`, `jobs/`, `l2/`, `channels/`. `applyRuntimeEnvironment` re-exports the resolved paths back into `process.env` plus `PI_CODING_AGENT_SESSION_DIR` so PI SDK code picks them up.
+Derived paths inside `dataDir`: `learner/`, `sessions/`, `jobs/`, `l2/`, `l3/`, `channels/`. `applyRuntimeEnvironment` re-exports the resolved paths back into `process.env` plus `PI_CODING_AGENT_SESSION_DIR` so PI SDK code picks them up. It also sets `PI_CODING_AGENT_DIR` to `configDir` so pi-sandbox reads `sandbox.json` from the config directory.
 
 When editing path-related code, change `runtime.ts` rather than hard-coding paths in `cli.ts`/`server.ts`.
 
@@ -94,9 +102,22 @@ The agent loop is provided by `@earendil-works/pi-coding-agent` (npm). Inno wrap
 4. Hooks `session_start` to install custom TUI header/title.
 5. Persists `model_select` events back to `config.json`.
 
+Key files in `apps/inno-agent/src/agent/`:
+- `system-prompt.ts` — defines `INNO_SYSTEM_PROMPT`, the core educational instruction prompt injected every turn.
+- `inno-extension.ts` — extension factory that wires everything together (tools, hooks, skills).
+- `pi-runner.ts` — server-side facade around PI session APIs (`initSession`, `createNewSession`, `runPromptStreaming`, `completePromptOnce`, `switchModel`, etc.), shared by REST + SSE endpoints.
+- `provider-sync.ts` — syncs providers from config into PI runtime and subagents.
+- `question-bridge.ts` — bridges `ask_user_question` tool calls from agent to web UI via an EventEmitter.
+- `practice-tools.ts` — Practice Lab tools (run commands, read run records).
+- `document-tools.ts` — file uploads, workspace file reading, document preview (CSV, Office formats).
+
 `cli.ts` calls PI's `main(...)` with this extension and forces `--no-skills --skill <skillsDir>` so only the project's skills directory is loaded.
 
-`server.ts` (HTTP) goes through `agent/pi-runner.ts`, which is a server-side facade around PI session APIs (`initSession`, `createNewSession`, `runPromptStreaming`, `completePromptOnce`, `switchModel`, etc.) and is shared by REST + SSE endpoints.
+`server.ts` (HTTP) goes through `agent/pi-runner.ts`.
+
+### Storage layer (`src/storage/`)
+
+`file-store.ts` is the general-purpose JSON file persistence layer. Used by multiple subsystems (learner profile, jobs, wiki manifest) as a thin typed wrapper over `readFileSync`/`writeFileSync` with atomic writes.
 
 ### Memory system
 
@@ -115,8 +136,11 @@ Three layers, all file-backed under `dataDir`:
 `src/channels/` defines a `ChannelRegistry` and registers channels when their respective config blocks are present:
 
 - **Feishu** (`feishu/feishu-channel.ts`): native Lark/Feishu integration via `@larksuiteoapi/node-sdk`.
-- **QQ** and **WeChat** (`bridge/bridge-channel.ts`): bridge/sidecar mode — the agent communicates with an external sidecar process over HTTP, which handles the actual IM protocol. Each has a `sidecarBaseUrl` in config.
+- **QQ** and **WeChat** (`bridge/bridge-channel.ts`): bridge/sidecar mode — the agent communicates with an external sidecar process over HTTP, which handles the actual IM protocol. Each has a `sidecarBaseUrl` in config. Inbound messages arrive via `bridge/bridge-server.ts`, a local HTTP server that receives callbacks from sidecars.
+- **WeChat iLink** (`wechat/ilink-client.ts`): alternative non-bridge WeChat mode using iLink protocol instead of a sidecar.
 - `personal-dispatcher.ts` pushes reminders and messages back out through registered channels.
+- `channel-tools.ts` exposes agent tools (`send_file_to_channel`, etc.) for interacting with channels.
+- `dedupe-store.ts` prevents duplicate message delivery; `run-log.ts` tracks channel operation outcomes.
 
 ### HTTP server (`src/server.ts`)
 
@@ -126,7 +150,12 @@ Plain Node `http.createServer` (no framework). Key endpoints:
 - `GET/PUT /api/wiki/*` — wiki CRUD, graph, stats.
 - `GET/POST/PATCH/DELETE /api/jobs[/:id]` — job management; `POST /api/jobs/:id/run` for manual execution.
 - `GET /api/sessions` / `GET /api/sessions/:id` — session listing.
+- `GET /api/skills` — list loaded skills.
 - `POST /api/skills/upload` — accepts `<skill-name>.zip`, unpacks into `skillsDir/<name>/` via `spawnSync('unzip', ...)`.
+- `PATCH /api/skills/:name` — enable/disable a skill.
+- `DELETE /api/skills/:name` — remove a skill.
+- `POST /api/skills/reload` — reload PI resources after skill changes.
+- `GET /api/settings` — current config (redacted API keys).
 - `GET /health` — health check (polled by Electron loading screen).
 - WebSocket upgrade for `/api/terminal` — xterm.js in-browser terminal.
 
@@ -148,9 +177,31 @@ Handles file uploads, workspace file reading, and document preview (CSV, Office 
 
 Optional subagent support via `pi-subagents` package, configured with `subagents.enabled` in `config.json`. When enabled, the agent can spawn sub-agents for parallel or isolated tasks.
 
+### Skills loading
+
+Skills are loaded from `paths.skillsDir`, which defaults to `<home>/skills` but is pointed at `.inno/skills/` for development. Skills are Markdown files that declare agent capabilities, tool restrictions, and custom instructions. The PI SDK parses skill YAML frontmatter for metadata.
+
+- `cli.ts` forces `--no-skills --skill <skillsDir>` — disables PI's built-in skills, loads only from the project's skills directory.
+- `server.ts` loads skills from `paths.skillsDir` via `loadSkillsFromDir`.
+- The web UI lists skills via `GET /api/skills` and allows upload of `<skill-name>.zip` files via `POST /api/skills/upload` (unzips into skills dir).
+- Skills are re-indexed on server startup and after upload/reload.
+
+### Sandbox (`pi-sandbox`)
+
+Optional OS-level sandbox for agent bash/file operations, enabled with `--sandbox` flag (requires `ripgrep`). Configured via:
+
+- **Global**: `<configDir>/sandbox.json` (typically `runtime/config/sandbox.json`)
+- **Project-level** (higher priority): `<workspaceDir>/.pi/sandbox.json`
+
+Configuration supports `network.allowedDomains` and `filesystem` policies (`allowRead`, `denyRead`, `allowWrite`, `denyWrite`) with glob patterns. Intercepted operations trigger interactive prompts (allow once/project/globally).
+
+The `PI_CODING_AGENT_DIR` env var is set to `configDir` in `runtime.ts` so pi-sandbox can locate its config.
+
 ### Web UI
 
-Hybrid React + Lit. Mounts in `web/src/main.tsx` → `react/App.tsx`. State lives in framework-agnostic `stores/` (small `EventEmitter`-based stores: `chat-store`, `sessions-store`, `wiki-store`, `jobs-store`, `skills-store`, `settings-store`, `workspace-store`, `graph-store`, `app-store`). REST/SSE calls go through `web/src/api/`. Some legacy Lit components remain under `components/`. Tailwind 4 via `@tailwindcss/vite`.
+Hybrid React + Lit. Mounts in `web/src/main.tsx` → `react/App.tsx`. State lives in framework-agnostic `stores/` (small `EventEmitter`-based stores: `chat-store`, `sessions-store`, `wiki-store`, `jobs-store`, `skills-store`, `settings-store`, `workspace-store`, `workspaces-store`, `learner-store`, `notebook-store`, `terminal-store`, `graph-store`, `app-store`). Each store extends `EventEmitter` — components subscribe to change events and re-render on state mutation. REST/SSE calls go through `web/src/api/`. Some legacy Lit components remain under `components/`. Tailwind 4 via `@tailwindcss/vite`.
+
+Key UI dependencies: `cytoscape` (wiki graph), `@xterm/xterm` (in-browser terminal), `@uiw/react-codemirror` (code editor), `@uiw/react-md-editor` (markdown editor), `motion` (animations).
 
 **i18n**: The UI supports Chinese (`zh-CN`, default) and English (`en`), managed by `i18next` + `react-i18next` in `web/src/i18n/`. Locale is persisted to `localStorage` under `inno.locale`.
 
@@ -159,3 +210,7 @@ Hybrid React + Lit. Mounts in `web/src/main.tsx` → `react/App.tsx`. State live
 Runtime config lives at `<configDir>/config.json` (template: `config.example.json` at repo root). It declares `defaultProvider`, `defaultModel`, a `providers` map (each with `baseUrl`, `api` ∈ {`openai-completions`, `anthropic-messages`}, `apiKey`, `models[]`), optional `server.port`, optional `channels.feishu` / `channels.qq` / `channels.wechat` blocks, optional `bridge.token` (for bridge-mode channels), and optional `subagents.enabled`. The server hot-rewrites this file when the user switches model via the UI.
 
 Model config supports `reasoning` (boolean), `contextWindow`, and `maxTokens` per model entry.
+
+**Config manipulation** is centralized in `apps/inno-agent/src/config.ts` (`normalizeConfig`, `saveConfig`, `setDefaultModel`, `upsertProvider`, `deleteProvider`, `getConfiguredPort`). It handles legacy config migration (`openai` → `providers.openai-custom`) and normalizes missing fields with sensible defaults. All config writes should go through these helpers rather than directly writing the JSON file.
+
+The backend package declares a `bin` entry (`"inno": "dist/cli.js"`), so after a global install the `inno` command is available.

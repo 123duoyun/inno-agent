@@ -19,6 +19,7 @@ import type { InnoConfig } from "../config.js";
 import type { RuntimePaths } from "../runtime.js";
 import { ensureDir } from "../storage/file-store.js";
 import type { ChannelRegistry } from "../channels/channel.js";
+import { logger } from "../logger.js";
 
 let _runtime: AgentSessionRuntime | null = null;
 let _queue: Promise<void> = Promise.resolve();
@@ -46,7 +47,7 @@ function resolveCwdFor(sessionPath: string | null | undefined): string {
 			const resolved = _cwdResolver(sessionPath);
 			if (resolved) return resolved;
 		} catch (err) {
-			console.warn(`[pi-runner] cwd resolver error: ${err instanceof Error ? err.message : String(err)}`);
+			logger.warn({ err }, "cwd resolver error");
 		}
 	}
 	return _workspaceDir;
@@ -191,7 +192,7 @@ export async function initSession(
 			},
 		},
 		onError: (err) => {
-			console.error(`[inno-server] extension error: ${err.error}`);
+			logger.error({ err }, "agent extension error");
 		},
 	});
 

@@ -1,3 +1,7 @@
+// Register source-map-support so that compiled JS stack traces and
+// pino-caller call sites map back to the original TS source locations.
+import "source-map-support/register.js";
+
 import { createServer, type IncomingMessage as HttpReq, type ServerResponse } from "node:http";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -39,6 +43,7 @@ import { readManifest } from "./memory/l2/manifest-store.js";
 import { loadProfile, saveProfile } from "./memory/learner/profile-store.js";
 import type { LearnerProfile, LearningGoal, KnowledgeState, Misconception, LearnerPreferences } from "./memory/learner/types.js";
 import { randomUUID } from "node:crypto";
+import { logger } from "./logger.js";
 import { applyRuntimeEnvironment, parseRuntimeArgs, resolveRuntimePaths } from "./runtime.js";
 import { questionBridge, type QuestionBridgeResult } from "./agent/question-bridge.js";
 import { DEFAULT_WORKSPACE_ID, TEMP_WORKSPACE_ID, WorkspaceRegistry } from "./workspace/workspace-registry.js";
@@ -1626,7 +1631,7 @@ function maybeAutoGenerateTopic(sessionId: string): void {
 			writeSessionTopic(sessionId, topic, true);
 			console.log(`[auto-topic] ${sessionId} → ${topic}`);
 		} catch (err) {
-			console.warn(`[auto-topic] failed for ${sessionId}:`, err instanceof Error ? err.message : String(err));
+			logger.warn({ err }, `auto-topic generation failed for ${sessionId}`);
 		} finally {
 			_pendingAutoTopics.delete(sessionId);
 		}
@@ -1778,6 +1783,7 @@ const server = createServer(async (req, res) => {
 				}
 				json(res, 200, { qrId: qr.qrcode, qrUrl });
 			} catch (err) {
+				logger.error({ err }, "WeChat QR login failed");
 				json(res, 500, { error: err instanceof Error ? err.message : "Failed to get QR code" });
 			}
 			return;
@@ -1805,6 +1811,7 @@ const server = createServer(async (req, res) => {
 				}
 				json(res, 200, { status: status.status, botId: status.ilink_bot_id });
 			} catch (err) {
+				logger.error({ err }, "WeChat QR status check failed");
 				json(res, 500, { error: err instanceof Error ? err.message : "Failed to check QR status" });
 			}
 			return;
@@ -2284,7 +2291,7 @@ const server = createServer(async (req, res) => {
 					await applyWorkspaceCwd(sessionPath);
 				}
 			} catch (err) {
-				console.warn(`[sessions] failed to bind workspace for ${id}:`, err instanceof Error ? err.message : err);
+				logger.warn({ err }, `failed to bind workspace for session ${id}`);
 			}
 
 			json(res, 201, { id, active: true, workspaceId });
@@ -2334,8 +2341,8 @@ const server = createServer(async (req, res) => {
 				if (shouldDropTempWorkspace) {
 					workspaceRegistry.deleteWorkspace(boundWorkspaceId, { removeFiles: true });
 				}
-			} catch {
-				// best-effort cleanup
+			} catch (err) {
+				logger.warn({ err }, "session delete cleanup failed");
 			}
 			json(res, 200, { id: sessionId, deleted: true, newActiveId });
 			return;
@@ -2381,7 +2388,8 @@ const server = createServer(async (req, res) => {
 					}
 				}
 				json(res, 200, pages);
-			} catch {
+			} catch (err) {
+				logger.warn({ err }, "failed to list wiki pages");
 				json(res, 200, []);
 			}
 			return;
@@ -2483,7 +2491,8 @@ const server = createServer(async (req, res) => {
 				}
 
 				json(res, 200, { nodes, edges });
-			} catch {
+			} catch (err) {
+				logger.warn({ err }, "failed to build wiki graph");
 				json(res, 200, { nodes: [], edges: [] });
 			}
 			return;
@@ -2502,7 +2511,8 @@ const server = createServer(async (req, res) => {
 					}
 				}
 				json(res, 200, { pageCount, totalSize, entryCount: entries.length });
-			} catch {
+			} catch (err) {
+				logger.warn({ err }, "failed to compute wiki stats");
 				json(res, 200, { pageCount: 0, totalSize: 0, entryCount: 0 });
 			}
 			return;
@@ -2760,6 +2770,7 @@ const server = createServer(async (req, res) => {
 				});
 				res.end(zipData);
 			} catch (err) {
+				logger.error({ err }, "failed to create zip archive");
 				json(res, 500, { error: err instanceof Error ? err.message : "Failed to create zip archive" });
 			}
 			return;
@@ -2785,6 +2796,7 @@ const server = createServer(async (req, res) => {
 					pages: parsed.pages,
 				});
 			} catch (err) {
+				logger.warn({ err }, "failed to parse office document");
 				json(res, 422, { error: err instanceof Error ? err.message : "Failed to parse document" });
 			}
 			return;
@@ -2933,6 +2945,7 @@ const server = createServer(async (req, res) => {
 						installedSkill = true;
 						continue;
 					} catch (err) {
+						logger.error({ err }, "failed to install skill package during upload");
 						json(res, 400, { error: err instanceof Error ? err.message : "Failed to install skill package" });
 						return;
 					}
@@ -2973,6 +2986,7 @@ const server = createServer(async (req, res) => {
 				scheduleSkillsReload();
 				json(res, 201, workspaceSkillNode(root, skill.name));
 			} catch (err) {
+				logger.error({ err }, "failed to install workspace skill package");
 				json(res, 400, { error: err instanceof Error ? err.message : "Failed to install skill package" });
 			}
 			return;
@@ -2996,6 +3010,7 @@ const server = createServer(async (req, res) => {
 				const ws = workspaceRegistry.createWorkspace({ name, isTemp });
 				json(res, 201, ws);
 			} catch (err) {
+				logger.error({ err }, "failed to create workspace");
 				json(res, 400, { error: err instanceof Error ? err.message : "Failed to create workspace" });
 			}
 			return;
@@ -3070,6 +3085,7 @@ const server = createServer(async (req, res) => {
 				const ts = terminalManager.create({ sessionId, workspaceId: requestedWs, cols, rows });
 				json(res, 201, { id: ts.id, sessionId: ts.sessionId, workspaceId: ts.workspaceId, cwd: ts.cwd, status: "ready" });
 			} catch (err) {
+				logger.error({ err }, "failed to create terminal session");
 				json(res, 400, { error: err instanceof Error ? err.message : "Failed to create terminal" });
 			}
 			return;
@@ -3262,6 +3278,7 @@ const server = createServer(async (req, res) => {
 				config = saveConfig(paths.configPath, deleteProvider(config, providerId));
 				await refreshConfiguredProviders(config);
 			} catch (err) {
+				logger.error({ err }, "failed to update channel settings");
 				json(res, 400, { error: err instanceof Error ? err.message : String(err) });
 				return;
 			}
@@ -3524,7 +3541,8 @@ const server = createServer(async (req, res) => {
 				// likely still failing (which would just block again).
 				if (!emittedError) maybeAutoGenerateTopic(capturedSessionId);
 			} catch (err) {
-				if (!aborted && !emittedError) {
+				logger.error({ err }, "SSE stream error");
+				if (!aborted) {
 					sseWrite({ type: "error", message: err instanceof Error ? err.message : "Unknown error" });
 				}
 			} finally {
@@ -3563,7 +3581,7 @@ const server = createServer(async (req, res) => {
 		// --- 404 ---
 		json(res, 404, { error: "Not found" });
 	} catch (err) {
-		console.error("[inno-server] error:", err);
+		logger.error({ err }, "unhandled error in HTTP handler");
 		json(res, 500, { error: "Internal server error" });
 	}
 });
