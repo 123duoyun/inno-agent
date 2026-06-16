@@ -110,8 +110,10 @@ async function logResponse(url: string, response: Response): Promise<void> {
   }
 
   const level = status >= 400 ? "warn" : "info";
+  const marker = "🤖🤖🤖 LLM RESPONSE START 🤖🤖🤖";
+  const endMarker = "🤖🤖🤖 LLM RESPONSE END 🤖🤖🤖";
   logger[level](
-    { url, status, responseBody: bodyStr },
-    `LLM HTTP response: ${status} ${url}`,
+    { url, status },
+    `${marker}\nPOST ${url} → ${status}\n${bodyStr}\n${endMarker}`,
   );
 }

@@ -4,6 +4,7 @@ import {
 	createAgentSessionServices,
 	getAgentDir,
 	SessionManager,
+	SettingsManager,
 	type AgentSession,
 	type AgentSessionEvent,
 	type AgentSessionRuntime,
@@ -12,8 +13,8 @@ import {
 	type SessionStartEvent,
 } from "@earendil-works/pi-coding-agent";
 import { complete, type AssistantMessage, type ImageContent } from "@earendil-works/pi-ai";
-import { basename, resolve } from "node:path";
-import { existsSync, writeFileSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createInnoExtension, type ConfigHolder, type InnoExtensionDeps } from "./inno-extension.js";
 import type { InnoConfig } from "../config.js";
 import type { RuntimePaths } from "../runtime.js";
@@ -77,6 +78,37 @@ function enqueue<T>(task: () => Promise<T>): Promise<T> {
  * Initialize an AgentSessionRuntime for server use.
  * This matches CLI's PI runtime model (runtime + services + session replacement).
  */
+/**
+ * Write a default {@code retry.provider.timeoutMs} into the PI SDK settings
+ * file when none is configured yet.  This gives every provider request a hard
+ * deadline so that stalled LLM connections don't leak when the HTTP client
+ * (gateway / browser) has already disconnected.
+ *
+ * When the user already has an explicit value in settings.json it is left
+ * untouched.
+ */
+function applyDefaultProviderTimeout(agentDir: string, defaultMs: number): void {
+	const settingsPath = join(agentDir, "settings.json");
+	let settings: Record<string, unknown> = {};
+	if (existsSync(settingsPath)) {
+		try {
+			settings = JSON.parse(readFileSync(settingsPath, "utf-8")) as Record<string, unknown>;
+		} catch {
+			// corrupt file — overwrite below
+		}
+	}
+	const retry = (settings.retry ??= {}) as Record<string, unknown>;
+	const provider = (retry.provider ??= {}) as Record<string, unknown>;
+	if (provider.timeoutMs === undefined) {
+		provider.timeoutMs = defaultMs;
+		writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
+		logger.info(
+			{ timeoutMs: defaultMs, path: settingsPath },
+			"provider retry timeoutMs set to default",
+		);
+	}
+}
+
 export async function initSession(
 	config: InnoConfig,
 	paths: RuntimePaths,
@@ -116,6 +148,17 @@ export async function initSession(
 		}
 	}
 
+	// Ensure provider requests have a reasonable timeout so that stalled
+	// LLM connections don't leak when the client disconnects (e.g. gateway
+	// timeout before the model finishes thinking). The value is only applied
+	// as a default — explicit user configuration in settings.json takes
+	// precedence.
+	const DEFAULT_PROVIDER_TIMEOUT_MS = 300_000; // 5 min
+	applyDefaultProviderTimeout(agentDir, DEFAULT_PROVIDER_TIMEOUT_MS);
+
+	// Re-create settingsManager so it picks up any defaults we just wrote.
+	const settingsManager = SettingsManager.create(cwd, agentDir);
+
 	const createRuntime = async ({
 		cwd,
 		agentDir,
@@ -130,6 +173,7 @@ export async function initSession(
 		const services = await createAgentSessionServices({
 			cwd,
 			agentDir,
+			settingsManager,
 			resourceLoaderOptions: {
 				extensionFactories,
 				additionalSkillPaths: [paths.skillsDir],
@@ -540,17 +584,18 @@ export async function runPrompt(prompt: string, images?: ImageContent[]): Promis
 				output += ev.delta;
 			} else if (ev.type === "error") {
 				streamError = ev.error.errorMessage || `LLM API error (stopReason: ${ev.error.stopReason})`;
-				logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason }, "LLM API stream error in runPrompt");
+				logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason, elapsedMs: Date.now() - promptStartTime }, "LLM API stream error in runPrompt");
 			}
 		} else if (event.type === "auto_retry_start") {
-			logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs }, "LLM API call failed, auto-retrying...");
+			logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs, elapsedMs: Date.now() - promptStartTime }, "LLM API call failed, auto-retrying...");
 		} else if (event.type === "auto_retry_end") {
 			if (!event.success) {
-				logger.error({ finalError: event.finalError }, "LLM API auto-retry failed");
+				logger.error({ finalError: event.finalError, elapsedMs: Date.now() - promptStartTime }, "LLM API auto-retry failed");
 			}
 		}
 	});
 
+	const promptStartTime = Date.now();
 	try {
 		await session.prompt(prompt, images?.length ? { images } : undefined);
 	} finally {
@@ -614,6 +659,7 @@ export async function completePromptOnce(prompt: string, maxTokens = 64, timeout
 
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	const promptStartTime = Date.now();
 	try {
 		const response = await complete(
 			model,
@@ -646,7 +692,7 @@ export async function completePromptOnce(prompt: string, maxTokens = 64, timeout
 			.trim();
 	} catch (err) {
 		// best-effort metadata generation — timeout/abort/network errors are non-fatal
-		logger.warn({ err }, "completePromptOnce failed (non-fatal)");
+		logger.warn({ err, elapsedMs: Date.now() - promptStartTime }, "completePromptOnce failed (non-fatal)");
 		return "";
 	} finally {
 		clearTimeout(timer);
@@ -679,16 +725,17 @@ export function runPromptStreaming(
 					output += ev.delta;
 				} else if (ev.type === "error") {
 					streamError = ev.error.errorMessage || `LLM API error (stopReason: ${ev.error.stopReason})`;
-					logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason }, "LLM API stream error in runPromptStreaming");
+					logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason, elapsedMs: Date.now() - promptStartTime }, "LLM API stream error in runPromptStreaming");
 				}
 			} else if (event.type === "auto_retry_start") {
-				logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs }, "LLM API call failed, auto-retrying...");
+				logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs, elapsedMs: Date.now() - promptStartTime }, "LLM API call failed, auto-retrying...");
 			} else if (event.type === "auto_retry_end") {
 				if (!event.success) {
-					logger.error({ finalError: event.finalError }, "LLM API auto-retry failed");
+					logger.error({ finalError: event.finalError, elapsedMs: Date.now() - promptStartTime }, "LLM API auto-retry failed");
 				}
 			}
 		});
+		const promptStartTime = Date.now();
 		try {
 			await session.prompt(prompt, images?.length ? { images } : undefined);
 		} finally {
@@ -729,16 +776,17 @@ export function runPromptStreamingInSession(
 					output += ev.delta;
 				} else if (ev.type === "error") {
 					streamError = ev.error.errorMessage || `LLM API error (stopReason: ${ev.error.stopReason})`;
-					logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason, sessionPath }, "LLM API stream error in runPromptStreamingInSession");
+					logger.error({ errorMessage: streamError, stopReason: ev.error.stopReason, sessionPath, elapsedMs: Date.now() - promptStartTime }, "LLM API stream error in runPromptStreamingInSession");
 				}
 			} else if (event.type === "auto_retry_start") {
-				logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs }, "LLM API call failed, auto-retrying...");
+				logger.warn({ attempt: event.attempt, maxAttempts: event.maxAttempts, delayMs: event.delayMs, elapsedMs: Date.now() - promptStartTime }, "LLM API call failed, auto-retrying...");
 			} else if (event.type === "auto_retry_end") {
 				if (!event.success) {
-					logger.error({ finalError: event.finalError }, "LLM API auto-retry failed");
+					logger.error({ finalError: event.finalError, elapsedMs: Date.now() - promptStartTime }, "LLM API auto-retry failed");
 				}
 			}
 		});
+		const promptStartTime = Date.now();
 		try {
 			await session.prompt(prompt, images?.length ? { images } : undefined);
 		} finally {
