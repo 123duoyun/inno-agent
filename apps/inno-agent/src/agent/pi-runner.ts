@@ -153,7 +153,7 @@ export async function initSession(
 	// timeout before the model finishes thinking). The value is only applied
 	// as a default — explicit user configuration in settings.json takes
 	// precedence.
-	const DEFAULT_PROVIDER_TIMEOUT_MS = 300_000; // 5 min
+	const DEFAULT_PROVIDER_TIMEOUT_MS = 600_000; // 10 min
 	applyDefaultProviderTimeout(agentDir, DEFAULT_PROVIDER_TIMEOUT_MS);
 
 	// Re-create settingsManager so it picks up any defaults we just wrote.
