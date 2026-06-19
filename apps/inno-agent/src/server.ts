@@ -47,6 +47,7 @@ import { logger } from "./logger.js";
 import { applyRuntimeEnvironment, parseRuntimeArgs, resolveRuntimePaths } from "./runtime.js";
 import { questionBridge, type QuestionBridgeResult } from "./agent/question-bridge.js";
 import { DEFAULT_WORKSPACE_ID, TEMP_WORKSPACE_ID, WorkspaceRegistry } from "./workspace/workspace-registry.js";
+import { listPresets, instantiatePreset } from "./presets/preset-store.js";
 import { RunRecordStore } from "./terminal/run-record-store.js";
 import { TerminalSessionManager } from "./terminal/terminal-session-manager.js";
 import type { ClientTerminalEvent, ServerTerminalEvent } from "./terminal/terminal-types.js";
@@ -2269,14 +2270,20 @@ const server = createServer(async (req, res) => {
 			const id = await createNewSession();
 
 			// Determine target workspace. The UI chooser always sends an explicit
-			// choice (new/existing); temp is only a safety fallback.
+			// choice (new/existing); temp is only a safety fallback. A presetId
+			// takes precedence: it instantiates a bundled preset into a fresh
+			// workspace (copying its agent.md + .skills) and binds the session to it.
 			let workspaceId: string = TEMP_WORKSPACE_ID;
 			const explicitWorkspaceId = typeof body.workspaceId === "string" ? body.workspaceId.trim() : "";
+			const presetId = typeof body.presetId === "string" ? body.presetId.trim() : "";
 			const newWorkspaceSpec = body.newWorkspace && typeof body.newWorkspace === "object"
 				? body.newWorkspace as { name?: unknown; isTemp?: unknown }
 				: null;
 			try {
-				if (newWorkspaceSpec) {
+				if (presetId) {
+					const created = instantiatePreset(paths, workspaceRegistry, presetId);
+					workspaceId = created.id;
+				} else if (newWorkspaceSpec) {
 					const created = workspaceRegistry.createWorkspace({
 						name: typeof newWorkspaceSpec.name === "string" ? newWorkspaceSpec.name : undefined,
 						isTemp: Boolean(newWorkspaceSpec.isTemp),
@@ -2994,6 +3001,12 @@ const server = createServer(async (req, res) => {
 			return;
 		}
 
+		// --- Presets API (bundled ready-to-use workspace templates) ---
+		if (method === "GET" && url === "/api/presets") {
+			json(res, 200, listPresets(paths));
+			return;
+		}
+
 		// --- Workspaces registry API ---
 		if (method === "GET" && url === "/api/workspaces") {
 			const sessionDir = join(dataDir, "sessions");
@@ -3388,6 +3401,21 @@ const server = createServer(async (req, res) => {
 				l2Enabled: typeof body.l2Enabled === "boolean" ? body.l2Enabled : current.l2Enabled,
 				l3Enabled: typeof body.l3Enabled === "boolean" ? body.l3Enabled : current.l3Enabled,
 			};
+			config = saveConfig(paths.configPath, config);
+			syncConfig(config);
+			json(res, 200, buildSafeSettings());
+			return;
+		}
+
+		// --- Simple Mode toggle (streamlined experience: force-locks memory off
+		// at runtime and hides notebook/profile tabs; does not touch memory config) ---
+		if (method === "PUT" && url === "/api/settings/simple-mode") {
+			const body = (await readBody(req)) as Record<string, unknown>;
+			if (typeof body.enabled !== "boolean") {
+				json(res, 400, { error: "enabled must be a boolean" });
+				return;
+			}
+			config.simpleMode = { enabled: body.enabled };
 			config = saveConfig(paths.configPath, config);
 			syncConfig(config);
 			json(res, 200, buildSafeSettings());

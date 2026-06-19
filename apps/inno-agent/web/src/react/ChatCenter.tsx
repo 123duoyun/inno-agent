@@ -8,8 +8,11 @@ import { chatStore } from "../stores/chat-store.js";
 import { sessionsStore } from "../stores/sessions-store.js";
 import { workspacesStore } from "../stores/workspaces-store.js";
 import { workspaceStore } from "../stores/workspace-store.js";
+import { settingsStore } from "../stores/settings-store.js";
 import { appStore } from "../stores/app-store.js";
 import type { CreateSessionInput } from "../api/sessions.js";
+import { listPresets } from "../api/presets.js";
+import type { PresetMeta } from "../types/presets.js";
 import { uploadRawFile, type RawUploadResult } from "../api/uploads.js";
 import { useStoreSnapshot } from "./hooks.js";
 import { QuestionDialog } from "./QuestionDialog.js";
@@ -202,6 +205,21 @@ export function ChatCenter() {
 	const [wsExistingId, setWsExistingId] = useState("");
 	const [wsError, setWsError] = useState("");
 
+	// Simple Mode surfaces preset workspaces for one-click start.
+	const simpleMode = useStoreSnapshot(settingsStore, () => settingsStore.settings?.simpleMode?.enabled === true);
+	const [presets, setPresets] = useState<PresetMeta[]>([]);
+	const [openingPresetId, setOpeningPresetId] = useState<string | null>(null);
+	const [togglingMode, setTogglingMode] = useState(false);
+
+	// Toggle between Simple and Normal mode from the welcome screen. The IA icon
+	// plays a flip animation keyed on the resulting mode.
+	const toggleMode = useCallback(() => {
+		if (togglingMode) return;
+		const next = !(settingsStore.settings?.simpleMode?.enabled === true);
+		setTogglingMode(true);
+		void settingsStore.saveSimpleMode(next).finally(() => setTogglingMode(false));
+	}, [togglingMode]);
+
 	const chat = useStoreSnapshot(chatStore, () => ({
 		messages: chatStore.messages,
 		isSending: chatStore.isSending,
@@ -288,6 +306,9 @@ export function ChatCenter() {
 	}, []);
 
 	const buildSessionInput = useCallback((): CreateSessionInput | { __error: string } => {
+		// Simple Mode: no workspace chooser. Direct chat always goes to a temp
+		// workspace; presets are opened via openPreset into their own workspace.
+		if (simpleMode) return { newWorkspace: { isTemp: true } };
 		if (wsMode === "temp") return { newWorkspace: { isTemp: true } };
 		if (wsMode === "new") {
 			const trimmed = wsName.trim();
@@ -296,7 +317,7 @@ export function ChatCenter() {
 		}
 		if (!wsExistingId) return { __error: "请选择一个工作区" };
 		return { workspaceId: wsExistingId };
-	}, [wsMode, wsName, wsExistingId]);
+	}, [simpleMode, wsMode, wsName, wsExistingId]);
 
 	// Create the new workspace + session up-front (before any message) and reveal
 	// it in the right panel so the user can upload files / skills first.
@@ -316,6 +337,32 @@ export function ChatCenter() {
 			}
 		})();
 	}, [wsName]);
+
+	// Load bundled presets once when the welcome screen is shown in Simple Mode.
+	useEffect(() => {
+		if (isWelcome && simpleMode && presets.length === 0) {
+			void listPresets().then(setPresets).catch(() => setPresets([]));
+		}
+	}, [isWelcome, simpleMode, presets.length]);
+
+	// One-click open: instantiate the preset into a fresh workspace + session and
+	// reveal it in the right panel.
+	const openPreset = useCallback((presetId: string) => {
+		setWsError("");
+		setOpeningPresetId(presetId);
+		void (async () => {
+			try {
+				await sessionsStore.createSessionWith({ presetId });
+				appStore.setRightPanelTab("preview");
+				appStore.setWorkspaceWidth(560);
+				appStore.setWorkspaceMode("half");
+			} catch (err) {
+				setWsError(err instanceof Error ? err.message : "打开预设失败");
+			} finally {
+				setOpeningPresetId(null);
+			}
+		})();
+	}, []);
 
 	const handleSend = useCallback(() => {
 		const input = inputRef.current?.value.trim() ?? "";
@@ -537,15 +584,78 @@ export function ChatCenter() {
 				<div className="inno-chat-grid flex flex-1 min-h-0 justify-center overflow-y-auto px-4">
 					<div className="w-full max-w-2xl pt-[18vh] pb-12">
 						<div className="mb-6 flex flex-col items-center text-center">
-							<div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-base font-semibold text-blue-600 shadow-sm">IA</div>
+							<button
+								type="button"
+								onClick={toggleMode}
+								disabled={togglingMode}
+								title={simpleMode ? "当前:简单模式 · 点击切换到普通模式" : "当前:普通模式 · 点击切换到简单模式"}
+								aria-label={simpleMode ? "切换到普通模式" : "切换到简单模式"}
+								className="mb-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:cursor-wait"
+								style={{ perspective: "600px" }}
+							>
+								<motion.div
+									animate={{ rotateY: simpleMode ? 180 : 0 }}
+									transition={{ type: "spring", stiffness: 320, damping: 22 }}
+									style={{ transformStyle: "preserve-3d", position: "relative" }}
+									className="flex h-12 w-12 items-center justify-center"
+								>
+									{/* Front — Normal mode */}
+									<span
+										className="absolute inset-0 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-base font-semibold text-blue-600 shadow-sm transition-colors hover:border-blue-300"
+										style={{ backfaceVisibility: "hidden" }}
+									>
+										IA
+									</span>
+									{/* Back — Simple mode */}
+									<span
+										className="absolute inset-0 flex items-center justify-center rounded-xl border border-blue-400 bg-blue-600 text-base font-semibold text-white shadow-sm"
+										style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+									>
+										IA
+									</span>
+								</motion.div>
+							</button>
 							<h2 className="text-lg font-medium text-slate-950">Inno Agent</h2>
+							<span className="mt-1 text-[11px] text-slate-400">
+								{simpleMode ? "简单模式 · 点击图标切换" : "普通模式 · 点击图标切换"}
+							</span>
 						</div>
 
 						{renderUploadChips()}
 						{renderInlineImagePreviews()}
 						{renderComposer("有什么想学习或实践的?发送消息开始…")}
 
-						{preselectedWs ? (
+						{simpleMode && presets.length > 0 ? (
+							<div className="mt-5">
+								<div className="mb-2 text-xs font-medium text-slate-500">开箱即用 · 选一个开始</div>
+								<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+									{presets.map((preset) => (
+										<button
+											key={preset.id}
+											type="button"
+											disabled={openingPresetId !== null}
+											onClick={() => openPreset(preset.id)}
+											title={preset.description}
+											className="group flex flex-col items-start rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40 disabled:opacity-50"
+										>
+											<span className="text-sm font-medium text-slate-900 group-hover:text-blue-700">
+												{preset.name}
+											</span>
+											{preset.description ? (
+												<span className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-slate-500">
+													{preset.description}
+												</span>
+											) : null}
+											{openingPresetId === preset.id ? (
+												<span className="mt-1 text-[10px] text-blue-600">正在打开…</span>
+											) : null}
+										</button>
+									))}
+								</div>
+							</div>
+						) : null}
+
+						{simpleMode ? null : preselectedWs ? (
 							<div className="mt-3 flex flex-wrap items-center gap-2">
 								<span className="text-xs text-slate-400">工作区</span>
 								<span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-blue-100">

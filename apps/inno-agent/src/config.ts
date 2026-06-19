@@ -46,6 +46,17 @@ export interface InnoMemoryConfig {
 	l3Enabled: boolean;
 }
 
+/**
+ * Simple Mode. A global, opt-in switch (default OFF) that turns Inno into a
+ * streamlined, ready-to-use experience: it force-locks the L1/L2/L3 memory
+ * layers OFF at runtime (without overwriting the user's memory preferences, so
+ * exiting restores them) and the web UI hides the notebook/profile tabs and
+ * surfaces preset workspaces for one-click start.
+ */
+export interface InnoSimpleModeConfig {
+	enabled: boolean;
+}
+
 export interface PersonalChannelConfig {
 	enabled: boolean;
 	personalOnly?: boolean;
@@ -87,6 +98,7 @@ export interface InnoConfig {
 	};
 	subagents?: InnoSubagentsConfig;
 	memory?: InnoMemoryConfig;
+	simpleMode?: InnoSimpleModeConfig;
 }
 
 interface LegacyInnoConfig extends Partial<InnoConfig> {
@@ -139,6 +151,13 @@ export function normalizeMemoryConfig(memory: Partial<InnoMemoryConfig> | undefi
 	};
 }
 
+export function normalizeSimpleModeConfig(simpleMode: Partial<InnoSimpleModeConfig> | undefined): InnoSimpleModeConfig {
+	// Simple Mode defaults OFF; only an explicit `true` enables it.
+	return {
+		enabled: simpleMode?.enabled === true,
+	};
+}
+
 export function normalizeConfig(config: LegacyInnoConfig): InnoConfig {
 	const providers: Record<string, InnoProviderConfig> = {};
 	for (const [providerId, providerConfig] of Object.entries(config.providers ?? {})) {
@@ -174,6 +193,7 @@ export function normalizeConfig(config: LegacyInnoConfig): InnoConfig {
 		github: config.github,
 		subagents: config.subagents,
 		memory: normalizeMemoryConfig(config.memory),
+		simpleMode: normalizeSimpleModeConfig(config.simpleMode),
 	} as InnoConfig;
 }
 

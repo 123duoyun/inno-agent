@@ -333,6 +333,12 @@
     "providers": "Providers",
     "newProvider": "New provider",
     "memorySection": "Memory layers",
+    "simpleMode": {
+      "title": "Simple Mode",
+      "onDesc": "On: a streamlined, ready-to-use experience. Memory and profile are turned off; the notebook, profile, jobs and skills tabs and the terminal (experiment panel) are hidden and the settings page is simplified; preset workspaces are offered on the welcome screen.",
+      "offDesc": "Off: the full experience with learner profile, memory, notebook, scheduled jobs, skills, and the terminal available.",
+      "memoryLocked": "Memory is turned off while Simple Mode is on. Turn off Simple Mode to change these."
+    },
     "l1": {
       "title": "Learner profile (L1)",
       "onDesc": "On: injects the learner profile each turn and lets tools update it for personalized teaching.",

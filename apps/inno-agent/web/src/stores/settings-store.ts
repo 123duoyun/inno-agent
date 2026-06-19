@@ -1,5 +1,5 @@
 import { EventEmitter } from "./event-emitter.js";
-import { getSettings, switchBackendModel, upsertProvider, deleteProviderApi, deleteModelApi, saveChannelsSettings, saveMemorySettings, saveGithubSettings, type MemorySettingsPatch } from "../api/settings.js";
+import { getSettings, switchBackendModel, upsertProvider, deleteProviderApi, deleteModelApi, saveChannelsSettings, saveMemorySettings, saveSimpleModeSettings, saveGithubSettings, type MemorySettingsPatch } from "../api/settings.js";
 import type { InnoSettings, UpsertProviderRequest, ChannelsSettingsPayload } from "../types/settings.js";
 
 interface SettingsStoreEvents {
@@ -14,6 +14,7 @@ class SettingsStoreImpl extends EventEmitter<SettingsStoreEvents> {
 	isSavingChannels = false;
 	isSavingMemory = false;
 	isSavingGithub = false;
+	isSavingSimpleMode = false;
 	error: string | null = null;
 
 	async load(): Promise<void> {
@@ -132,6 +133,22 @@ class SettingsStoreImpl extends EventEmitter<SettingsStoreEvents> {
 			throw err;
 		} finally {
 			this.isSavingMemory = false;
+			this.emit("change", undefined);
+		}
+	}
+
+	async saveSimpleMode(enabled: boolean): Promise<void> {
+		this.isSavingSimpleMode = true;
+		this.error = null;
+		this.emit("change", undefined);
+		try {
+			this.settings = await saveSimpleModeSettings(enabled);
+		} catch (err) {
+			this.error = err instanceof Error ? err.message : "Failed to save simple mode setting";
+			this.emit("change", undefined);
+			throw err;
+		} finally {
+			this.isSavingSimpleMode = false;
 			this.emit("change", undefined);
 		}
 	}

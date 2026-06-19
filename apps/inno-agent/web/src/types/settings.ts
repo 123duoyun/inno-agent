@@ -80,4 +80,5 @@ export interface InnoSettings {
 	bridge?: { token: string }; // masked
 	github?: { token: string }; // masked
 	memory?: { l1Enabled: boolean; l2Enabled: boolean; l3Enabled: boolean };
+	simpleMode?: { enabled: boolean };
 }

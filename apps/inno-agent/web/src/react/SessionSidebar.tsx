@@ -20,6 +20,7 @@ import { chatStore } from "../stores/chat-store.js";
 import { sessionsStore } from "../stores/sessions-store.js";
 import { workspacesStore } from "../stores/workspaces-store.js";
 import { workspaceStore } from "../stores/workspace-store.js";
+import { settingsStore } from "../stores/settings-store.js";
 import type { WorkspaceMeta } from "../api/workspaces.js";
 import type { SessionChannel, SessionMeta } from "../api/sessions.js";
 import { useStoreSnapshot } from "./hooks.js";
@@ -398,6 +399,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 	const wsActive = useStoreSnapshot(workspaceStore, () => ({
 		activeWorkspaceId: workspaceStore.activeWorkspaceId,
 	}));
+	const simpleMode = useStoreSnapshot(settingsStore, () => settingsStore.settings?.simpleMode?.enabled === true);
 	const orderedChannels = CHANNEL_FILTER_ORDER.filter((ch) => state.availableChannels.includes(ch as SessionChannel));
 
 	useEffect(() => {
@@ -417,6 +419,9 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 		const byWs = new Map<string, SessionMeta[]>();
 		const unknown: SessionMeta[] = [];
 		for (const s of state.filteredSessions) {
+			// Simple Mode: only show web-originated conversations; hide sessions
+			// born in feishu/wechat/cli/scheduler channels.
+			if (simpleMode && s.origin && s.origin !== "web") continue;
 			if (s.archived) { archived.push(s); continue; }
 			const w = sessionToWs.get(s.id);
 			if (!w) { unknown.push(s); continue; }
@@ -436,6 +441,8 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 		for (const w of wsState.list) {
 			const sessions = byWs.get(w.id) ?? [];
 			const isChannel = CHANNEL_WS_ORDER.includes(w.id);
+			// Simple Mode: hide channel-backed workspaces entirely (web-only view).
+			if (simpleMode && isChannel) continue;
 			// Channel and temp workspaces are synthetic/auto-managed — hide them
 			// when they have no sessions. Project (user) workspaces always show,
 			// even with zero sessions, so they stay visible and deletable after
@@ -465,7 +472,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 			result.push({ id: "archived", name: "已归档", manageable: false, canCreate: false, sessions: archived });
 		}
 		return result;
-	}, [wsState.list, state.filteredSessions, state.searchQuery, state.channelFilter]);
+	}, [wsState.list, state.filteredSessions, state.searchQuery, state.channelFilter, simpleMode]);
 
 	const newChat = useCallback(() => {
 		void (async () => {
@@ -655,8 +662,8 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 					)}
 				</div>
 
-				{/* Channel filter chips */}
-				{state.availableChannels.length > 1 && (
+				{/* Channel filter chips — hidden in Simple Mode (web-only view) */}
+				{!simpleMode && state.availableChannels.length > 1 && (
 					<div className="flex flex-wrap items-center gap-1">
 						{orderedChannels.map((ch) => (
 							<button

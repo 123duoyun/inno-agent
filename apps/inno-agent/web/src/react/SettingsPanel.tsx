@@ -720,30 +720,34 @@ type MemoryLayer = "l1Enabled" | "l2Enabled" | "l3Enabled";
 function MemoryToggleRow({
 	enabled,
 	saving,
+	locked,
 	title,
 	desc,
 	onToggle,
 }: {
 	enabled: boolean;
 	saving: boolean;
+	locked?: boolean;
 	title: string;
 	desc: string;
 	onToggle: (next: boolean) => void;
 }) {
+	// In Simple Mode the layers are force-locked OFF; show them as off + disabled.
+	const shown = locked ? false : enabled;
 	return (
-		<div className="flex items-start justify-between gap-3">
+		<div className={`flex items-start justify-between gap-3 ${locked ? "opacity-60" : ""}`}>
 			<div className="min-w-0">
 				<h4 className="text-sm font-medium text-slate-950">{title}</h4>
 				<p className="mt-1 text-xs text-slate-500">{desc}</p>
 			</div>
 			<button
 				role="switch"
-				aria-checked={enabled}
-				disabled={saving}
+				aria-checked={shown}
+				disabled={saving || locked}
 				onClick={() => onToggle(!enabled)}
-				className={`relative mt-0.5 inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${enabled ? "bg-blue-600" : "bg-slate-300"}`}
+				className={`relative mt-0.5 inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${shown ? "bg-blue-600" : "bg-slate-300"}`}
 			>
-				<span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${enabled ? "translate-x-[18px]" : "translate-x-1"}`} />
+				<span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${shown ? "translate-x-[18px]" : "translate-x-1"}`} />
 			</button>
 		</div>
 	);
@@ -751,6 +755,7 @@ function MemoryToggleRow({
 
 function MemorySettings({ settings }: { settings: InnoSettings }) {
 	const { t } = useTranslation();
+	const locked = settings.simpleMode?.enabled === true;
 	const initial = {
 		l1Enabled: settings.memory?.l1Enabled !== false,
 		l2Enabled: settings.memory?.l2Enabled !== false,
@@ -788,6 +793,7 @@ function MemorySettings({ settings }: { settings: InnoSettings }) {
 	return (
 		<div className="rounded-lg border border-slate-200 bg-white p-4">
 			<h4 className="mb-3 text-sm font-medium text-slate-950">{t("settings.memorySection")}</h4>
+			{locked ? <p className="mb-3 text-xs text-amber-600">{t("settings.simpleMode.memoryLocked")}</p> : null}
 			<div className="grid gap-4">
 				{layers.map(({ key, ns }) => {
 					const enabled = state[key];
@@ -796,12 +802,59 @@ function MemorySettings({ settings }: { settings: InnoSettings }) {
 							key={key}
 							enabled={enabled}
 							saving={savingKey === key}
+							locked={locked}
 							title={t(`settings.${ns}.title`)}
 							desc={enabled ? t(`settings.${ns}.onDesc`) : t(`settings.${ns}.offDesc`)}
 							onToggle={(next) => void handleToggle(key, next)}
 						/>
 					);
 				})}
+			</div>
+		</div>
+	);
+}
+
+/* ---------- Simple Mode (streamlined experience) ---------- */
+
+function SimpleModeSettings({ settings }: { settings: InnoSettings }) {
+	const { t } = useTranslation();
+	const [enabled, setEnabled] = useState(settings.simpleMode?.enabled === true);
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		setEnabled(settings.simpleMode?.enabled === true);
+	}, [settings.simpleMode?.enabled]);
+
+	async function handleToggle(next: boolean) {
+		setEnabled(next);
+		setSaving(true);
+		try {
+			await settingsStore.saveSimpleMode(next);
+		} catch {
+			setEnabled(!next);
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	return (
+		<div className="rounded-lg border border-slate-200 bg-white p-4">
+			<div className="flex items-start justify-between gap-3">
+				<div className="min-w-0">
+					<h4 className="text-sm font-medium text-slate-950">{t("settings.simpleMode.title")}</h4>
+					<p className="mt-1 text-xs leading-relaxed text-slate-500">
+						{enabled ? t("settings.simpleMode.onDesc") : t("settings.simpleMode.offDesc")}
+					</p>
+				</div>
+				<button
+					role="switch"
+					aria-checked={enabled}
+					disabled={saving}
+					onClick={() => void handleToggle(!enabled)}
+					className={`relative mt-0.5 inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${enabled ? "bg-blue-600" : "bg-slate-300"}`}
+				>
+					<span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${enabled ? "translate-x-[18px]" : "translate-x-1"}`} />
+				</button>
 			</div>
 		</div>
 	);
@@ -821,6 +874,7 @@ export function SettingsPanel() {
 		isSavingProvider: settingsStore.isSavingProvider,
 		error: settingsStore.error,
 	}));
+	const simpleMode = state.settings?.simpleMode?.enabled === true;
 
 	useEffect(() => {
 		void settingsStore.load();
@@ -938,17 +992,25 @@ export function SettingsPanel() {
 					</div>
 				</div>
 
-				{/* New Provider (collapsed by default) */}
-				<NewProviderForm />
+				{/* Simple Mode (streamlined experience; force-locks memory off) */}
+				{state.settings && <SimpleModeSettings settings={state.settings} />}
 
-				{/* Memory Settings (L3 cross-conversation recall) */}
-				{state.settings && <MemorySettings settings={state.settings} />}
+				{/* Advanced sections — hidden in Simple Mode for a streamlined panel */}
+				{!simpleMode && (
+					<>
+						{/* New Provider (collapsed by default) */}
+						<NewProviderForm />
 
-				{/* GitHub token (raises skill-library API rate limit) */}
-				{state.settings && <GithubSettings settings={state.settings} />}
+						{/* Memory Settings (L3 cross-conversation recall) */}
+						{state.settings && <MemorySettings settings={state.settings} />}
 
-				{/* Channels Settings */}
-				{state.settings && <ChannelsSettings settings={state.settings} />}
+						{/* GitHub token (raises skill-library API rate limit) */}
+						{state.settings && <GithubSettings settings={state.settings} />}
+
+						{/* Channels Settings */}
+						{state.settings && <ChannelsSettings settings={state.settings} />}
+					</>
+				)}
 			</div>
 		</div>
 	);
