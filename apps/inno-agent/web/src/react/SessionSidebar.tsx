@@ -625,9 +625,15 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 				{/* Header: brand + collapse */}
 				<div className="flex items-center justify-between gap-2 border-b border-slate-200/70 px-3 py-2.5">
 					<div className="flex min-w-0 items-center gap-2">
-						<span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-600 text-[10px] font-semibold text-white shadow-sm">
+						<button
+							type="button"
+							onClick={toggleMode}
+							disabled={togglingMode}
+							title="切换到普通模式(完整功能)"
+							className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-600 text-[10px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-500 disabled:opacity-50"
+						>
 							IA
-						</span>
+						</button>
 						<h1 className="inno-sidebar-title truncate font-semibold tracking-tight text-slate-800">
 							Inno Agent
 						</h1>
@@ -702,21 +708,13 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 					)}
 				</div>
 
-				{/* Footer: new chat + explicit, labeled mode switch (P4 discoverability) */}
-				<div className="space-y-1.5 border-t border-slate-200/70 p-2">
+				{/* Footer: new chat (mode switch lives on the IA logo above) */}
+				<div className="border-t border-slate-200/70 p-2">
 					<button
 						className="inno-sidebar-text flex w-full items-center justify-center gap-2 rounded-lg bg-slate-800 px-3 py-1.5 font-medium text-white shadow-sm transition-colors hover:bg-slate-700"
 						onClick={newChat}
 					>
 						<Plus size={14} /> 新建对话
-					</button>
-					<button
-						className="inno-sidebar-meta flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
-						title="切换到普通模式(完整功能)"
-						disabled={togglingMode}
-						onClick={toggleMode}
-					>
-						简单模式 · 切换到普通模式
 					</button>
 				</div>
 			</aside>
