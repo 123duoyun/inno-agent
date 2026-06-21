@@ -95,7 +95,9 @@ function buildIndex() {
 			if (!entry.isDirectory() || !isUsableItemDir(entry.name)) continue;
 			const dir = join(skillsRoot, entry.name);
 			if (!existsSync(join(dir, CATEGORY.skills.marker))) continue;
-			index.skills.push({ name: entry.name, description: readSkillDescription(dir) });
+			// id = directory name (used for routing/download); skills have no
+			// display name distinct from the directory, so name mirrors id.
+			index.skills.push({ id: entry.name, name: entry.name, description: readSkillDescription(dir) });
 		}
 	}
 
@@ -109,8 +111,10 @@ function buildIndex() {
 			try {
 				const meta = JSON.parse(readFileSync(metaPath, "utf-8"));
 				if ((meta.id ?? "") !== entry.name || !(meta.name ?? "").trim()) continue;
+				// id = directory name (routing/download); name = display name.
 				index.presets.push({
-					name: entry.name,
+					id: entry.name,
+					name: meta.name.trim(),
 					description: (meta.description ?? "").trim(),
 					icon: meta.icon?.trim() || undefined,
 				});
@@ -120,8 +124,8 @@ function buildIndex() {
 		}
 	}
 
-	index.skills.sort((a, b) => a.name.localeCompare(b.name));
-	index.presets.sort((a, b) => a.name.localeCompare(b.name));
+	index.skills.sort((a, b) => a.id.localeCompare(b.id));
+	index.presets.sort((a, b) => a.id.localeCompare(b.id));
 	return index;
 }
 

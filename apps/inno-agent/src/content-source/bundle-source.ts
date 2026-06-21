@@ -16,15 +16,17 @@ import {
 /**
  * index.json shape served by a bundle service:
  *   {
- *     "skills":  [{ "name": "...", "description": "...", ... }],
- *     "presets": [{ "name": "...", "description": "...", "icon": "..." }]
+ *     "skills":  [{ "id": "...", "name": "...", "description": "...", ... }],
+ *     "presets": [{ "id": "...", "name": "...", "description": "...", "icon": "..." }]
  *   }
+ * `id` is the directory name (used for routing/download); `name` is the display
+ * name. For backward compatibility, `name` is used as the id when `id` is absent.
  * Each listed item's files are fetched as a single tarball from
- *   GET {baseUrl}/{skills|presets}/{name}.tar.gz
+ *   GET {baseUrl}/{skills|presets}/{id}.tar.gz
  */
 interface BundleIndex {
-	skills?: Array<{ name?: unknown } & Record<string, unknown>>;
-	presets?: Array<{ name?: unknown } & Record<string, unknown>>;
+	skills?: Array<{ id?: unknown; name?: unknown } & Record<string, unknown>>;
+	presets?: Array<{ id?: unknown; name?: unknown } & Record<string, unknown>>;
 }
 
 const INDEX_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -76,9 +78,13 @@ export class BundleServiceSource implements RemoteContentSource {
 		const raw = (category === "skills" ? index.skills : index.presets) ?? [];
 		const items: RemoteItem[] = [];
 		for (const entry of raw) {
-			const name = typeof entry.name === "string" ? entry.name.trim() : "";
-			if (!name || !isSafeItemName(name)) continue;
-			items.push({ name, meta: entry });
+			// `id` is the directory name (routing/download key). Fall back to
+			// `name` for older services that didn't distinguish the two.
+			const id = typeof entry.id === "string" && entry.id.trim()
+				? entry.id.trim()
+				: typeof entry.name === "string" ? entry.name.trim() : "";
+			if (!id || !isSafeItemName(id)) continue;
+			items.push({ name: id, meta: entry });
 		}
 		return items.sort((a, b) => a.name.localeCompare(b.name));
 	}

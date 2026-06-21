@@ -9,9 +9,11 @@ inno-agent 的内容源(`RemoteContentSource`)在 `type: "bundle"` 时会请求:
 
 | 请求 | 返回 |
 |---|---|
-| `GET /index.json` | `{ "skills": [...], "presets": [...] }` 全量目录(带 meta) |
-| `GET /skills/<name>.tar.gz` | `skill-library/<name>/` 的 gzip tar |
-| `GET /presets/<name>.tar.gz` | `workspace-templates/<name>/` 的 gzip tar |
+| `GET /index.json` | `{ "skills": [...], "presets": [...] }` 全量目录(每项含 `id`/`name`/`description`,preset 还有 `icon`) |
+| `GET /skills/<id>.tar.gz` | `skill-library/<id>/` 的 gzip tar |
+| `GET /presets/<id>.tar.gz` | `workspace-templates/<id>/` 的 gzip tar |
+
+其中 `id` 是目录名(用于路由/下载),`name` 是显示名(preset 取自 `preset.json`)。
 
 相比逐文件抓取,一次请求拿全量、无 GitHub 限流,鉴权也简单。
 
