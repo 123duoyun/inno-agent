@@ -16,7 +16,7 @@ import { complete, type AssistantMessage, type ImageContent } from "@earendil-wo
 import { basename, join, resolve } from "node:path";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createInnoExtension, type ConfigHolder, type InnoExtensionDeps } from "./inno-extension.js";
-import { createObservabilityExtension, obsLogger } from "./observability-extension.js";
+import { createObservabilityExtension, createPromptObserver, obsLogger } from "./observability-extension.js";
 import type { InnoConfig } from "../config.js";
 import type { RuntimePaths } from "../runtime.js";
 import { ensureDir } from "../storage/file-store.js";
@@ -579,6 +579,12 @@ export async function runPrompt(prompt: string, images?: ImageContent[]): Promis
 
 	let output = "";
 	let streamError: string | undefined;
+	const promptStartTime = Date.now();
+
+	// Observability: agent lifecycle + tool-call details
+	const promptObserver = createPromptObserver({ promptStartTime });
+	const obsUnsub = session.subscribe(promptObserver);
+
 	const unsubscribe = session.subscribe((event) => {
 		if (event.type === "message_update") {
 			const ev = event.assistantMessageEvent;
@@ -615,11 +621,11 @@ export async function runPrompt(prompt: string, images?: ImageContent[]): Promis
 		}
 	});
 
-	const promptStartTime = Date.now();
 	try {
 		await session.prompt(prompt, images?.length ? { images } : undefined);
 	} finally {
 		unsubscribe();
+		obsUnsub();
 	}
 
 	if (streamError) {
@@ -737,6 +743,12 @@ export function runPromptStreaming(
 		const session = getSession();
 		let output = "";
 		let streamError: string | undefined;
+		const promptStartTime = Date.now();
+
+		// Observability: agent lifecycle + tool-call details
+		const promptObserver = createPromptObserver({ promptStartTime });
+		const obsUnsub = session.subscribe(promptObserver);
+
 		const unsubscribe = session.subscribe((event) => {
 			onEvent(event);
 			if (event.type === "message_update") {
@@ -773,11 +785,11 @@ export function runPromptStreaming(
 				}
 			}
 		});
-		const promptStartTime = Date.now();
 		try {
 			await session.prompt(prompt, images?.length ? { images } : undefined);
 		} finally {
 			unsubscribe();
+			obsUnsub();
 		}
 
 		if (streamError) {
@@ -806,6 +818,12 @@ export function runPromptStreamingInSession(
 		const session = getSession();
 		let output = "";
 		let streamError: string | undefined;
+		const promptStartTime = Date.now();
+
+		// Observability: agent lifecycle + tool-call details
+		const promptObserver = createPromptObserver({ promptStartTime });
+		const obsUnsub = session.subscribe(promptObserver);
+
 		const unsubscribe = session.subscribe((event) => {
 			onEvent(event);
 			if (event.type === "message_update") {
@@ -842,11 +860,11 @@ export function runPromptStreamingInSession(
 				}
 			}
 		});
-		const promptStartTime = Date.now();
 		try {
 			await session.prompt(prompt, images?.length ? { images } : undefined);
 		} finally {
 			unsubscribe();
+			obsUnsub();
 		}
 
 		if (streamError) {
