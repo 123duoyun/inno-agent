@@ -273,7 +273,7 @@ function SessionCard({
 		<div
 			className={`group/card relative mb-1 w-full cursor-pointer rounded-lg border px-2.5 py-2 text-left transition-all duration-150 ${
 				active
-					? "border-[var(--inno-border)] bg-[var(--inno-surface-muted)] shadow-sm"
+					? "border-[var(--inno-border)] bg-[var(--inno-surface-muted)]"
 					: "border-transparent hover:border-[var(--inno-border)] hover:bg-[var(--inno-surface)]"
 			}`}
 			role="button"
@@ -693,7 +693,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 									}}
 									className={`group/srow relative mb-1 block w-full cursor-pointer rounded-lg border px-2.5 py-2 text-left transition-all duration-150 ${
 										state.currentSessionId === session.id
-											? "border-[var(--inno-border)] bg-[var(--inno-surface-muted)] shadow-sm"
+											? "border-[var(--inno-border)] bg-[var(--inno-surface-muted)]"
 											: "border-transparent hover:border-[var(--inno-border)] hover:bg-[var(--inno-surface)]"
 									}`}
 								>
