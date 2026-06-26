@@ -97,7 +97,7 @@ export function Notebook() {
 				<div className="@container flex items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2">
 					<div className="flex items-center gap-2">
 						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+							className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 							onClick={() => setSidebarOpen((v) => !v)}
 							title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
 						>
@@ -109,7 +109,6 @@ export function Notebook() {
 								onClick={() => notebookStore.setView("graph")}
 								title={t("notebook.view.graph")}
 							>
-								<Network size={13} />
 								<span className="hidden @[680px]:inline">{t("notebook.view.graph")}</span>
 							</button>
 							<button
@@ -117,7 +116,6 @@ export function Notebook() {
 								onClick={() => notebookStore.setView("page")}
 								title={t("notebook.view.page")}
 							>
-								<FileText size={13} />
 								<span className="hidden @[680px]:inline">{t("notebook.view.page")}</span>
 							</button>
 						</div>

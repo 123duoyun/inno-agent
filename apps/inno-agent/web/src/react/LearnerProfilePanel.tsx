@@ -123,7 +123,7 @@ function SummarySection() {
 			{dirty ? (
 				<div className="mt-2 flex justify-end gap-2">
 					<button
-						className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
+						className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
 						onClick={() => {
 							setBuffer(profile?.profile_summary ?? "");
 							setDirty(false);
@@ -132,7 +132,7 @@ function SummarySection() {
 						{t("common.cancel")}
 					</button>
 					<button
-						className="rounded-md inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50"
+						className="rounded-full inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50"
 						disabled={state.isSaving}
 						onClick={async () => {
 							await learnerStore.patchSummary(buffer);
@@ -207,7 +207,7 @@ function GoalsSection() {
 				count={goals.length}
 				action={
 					<button
-						className="rounded-md inno-primary-button px-3 py-1.5 text-xs text-white"
+						className="rounded-full inno-primary-button px-3 py-1.5 text-xs text-white"
 						onClick={openForm}
 					>
 						{t("profile.goals.addNew")}
@@ -337,14 +337,14 @@ function GoalFormDialog({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
 				<div className="mt-4 flex justify-end gap-2">
 					{error ? <div className="mr-auto text-xs text-red-600">{error}</div> : null}
 					<button
-						className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-50"
+						className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-50"
 						disabled={saving}
 						onClick={onClose}
 					>
 						{t("common.cancel")}
 					</button>
 					<button
-						className="rounded-md inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50"
+						className="rounded-full inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50"
 						disabled={saving}
 						onClick={() => void save()}
 					>
@@ -486,10 +486,10 @@ function GoalCard({ goal }: { goal: LearningGoal }) {
 					/>
 				</label>
 				<div className="flex justify-end gap-2 pt-1">
-					<button className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setEditing(false)}>
+					<button className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setEditing(false)}>
 						{t("common.cancel")}
 					</button>
-					<button className="rounded-md inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
+					<button className="rounded-full inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
 						{saving ? t("common.saving") : t("common.save")}
 					</button>
 				</div>
@@ -629,10 +629,10 @@ function KnowledgeRow({ state }: { state: KnowledgeState }) {
 							/>
 						</label>
 						<div className="flex justify-end gap-2 pt-1">
-							<button className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setExpanded(false)}>
+							<button className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setExpanded(false)}>
 								{t("common.cancel")}
 							</button>
-							<button className="rounded-md inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
+							<button className="rounded-full inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
 								{saving ? t("common.saving") : t("common.save")}
 							</button>
 						</div>
@@ -744,10 +744,10 @@ function MisconceptionRow({ item }: { item: Misconception }) {
 			</label>
 			{dirty ? (
 				<div className="mt-2 flex justify-end gap-2">
-					<button className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setDirty(false)}>
+					<button className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1 text-xs text-[var(--inno-text-muted)]" onClick={() => setDirty(false)}>
 						{t("common.cancel")}
 					</button>
-					<button className="rounded-md inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
+					<button className="rounded-full inno-primary-button px-3 py-1 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void save()}>
 						{saving ? t("common.saving") : t("common.save")}
 					</button>
 				</div>
@@ -793,10 +793,10 @@ function PreferencesSection() {
 			</div>
 			{dirty ? (
 				<div className="mt-3 flex justify-end gap-2">
-					<button className="rounded-md bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)]" onClick={() => setDirty(false)}>
+					<button className="rounded-full bg-[var(--inno-surface-muted)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)]" onClick={() => setDirty(false)}>
 						{t("common.cancel")}
 					</button>
-					<button className="rounded-md inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50" disabled={state.isSaving} onClick={() => void save()}>
+					<button className="rounded-full inno-primary-button px-3 py-1.5 text-sm text-white disabled:opacity-50" disabled={state.isSaving} onClick={() => void save()}>
 						{state.isSaving ? t("common.saving") : t("common.save")}
 					</button>
 				</div>
@@ -871,7 +871,7 @@ export function LearnerProfilePanel() {
 							</p>
 						) : null}
 					</div>
-					<button className="rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={() => void learnerStore.load()}>
+					<button className="rounded-full border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={() => void learnerStore.load()}>
 						{t("profile.refresh")}
 					</button>
 				</div>

@@ -226,8 +226,7 @@ function OfficePreview({ file }: { file: WorkspaceFileDetail }) {
 			<div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-sm text-[var(--inno-text-muted)]">
 				<div className="font-medium text-[var(--inno-text)]">{file.name}</div>
 				<div className="text-xs text-red-500">{error}</div>
-				<button className="flex items-center gap-1 rounded-md border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]" onClick={downloadOriginal}>
-					<Download size={12} />
+				<button className="flex items-center gap-1 rounded-full border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]" onClick={downloadOriginal}>
 					{t("files.download", "Download")}
 				</button>
 			</div>
@@ -240,8 +239,7 @@ function OfficePreview({ file }: { file: WorkspaceFileDetail }) {
 				<div className="text-xs text-[var(--inno-text-muted)]">
 					{t("preview.officeNote", "Text extracted for preview · formatting may differ")} · {t("preview.pageCount", "{{count}} pages", { count: data?.pageCount ?? pages.length })}
 				</div>
-				<button className="flex shrink-0 items-center gap-1 rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2.5 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]" onClick={downloadOriginal}>
-					<Download size={12} />
+				<button className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2.5 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]" onClick={downloadOriginal}>
 					{t("files.download", "Download")}
 				</button>
 			</div>
@@ -308,10 +306,9 @@ function Preview({ file, isLoading }: { file: WorkspaceFileDetail; isLoading: bo
 				<div className="text-lg font-medium text-[var(--inno-text)]">{file.name}</div>
 				<div>{t("preview.binaryFile")} · {formatSize(file.size)}</div>
 				<button
-					className="mt-2 flex items-center gap-1.5 rounded-md border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]"
+					className="mt-2 flex items-center gap-1.5 rounded-full border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]"
 					onClick={() => workspaceStore.openAsText()}
 				>
-					<FileCode2 size={13} />
 					{t("preview.openAsText", "Open as Text")}
 				</button>
 			</div>
@@ -402,18 +399,16 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 					<div className="flex items-center gap-1.5">
 						<button
 							disabled={state.isSaving}
-							className="flex h-7 items-center gap-1 rounded-md inno-primary-button px-2.5 text-xs text-white disabled:opacity-50"
+							className="flex h-7 items-center gap-1 rounded-full inno-primary-button px-2.5 text-xs text-white disabled:opacity-50"
 							onClick={() => void workspaceStore.saveFile()}
 						>
-							<Save size={12} />
 							{t("common.save", "Save")}
 						</button>
 						<button
 							disabled={state.isSaving}
-							className="flex h-7 items-center gap-1 rounded-md border border-[var(--inno-border)] px-2.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] disabled:opacity-50"
+							className="flex h-7 items-center gap-1 rounded-full border border-[var(--inno-border)] px-2.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] disabled:opacity-50"
 							onClick={() => workspaceStore.cancelEditing()}
 						>
-							<X size={12} />
 							{t("common.cancel", "Cancel")}
 						</button>
 					</div>
@@ -436,7 +431,7 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 			<div className="flex h-10 items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface)] px-3">
 				<div className="flex min-w-0 flex-1 items-center gap-2">
 					<button
-						className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+						className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
 					>
@@ -453,10 +448,9 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 					{state.file && !simpleMode ? <RunButton filePath={state.file.path} /> : null}
 					{canEdit && (
 						<button
-							className="flex h-7 items-center gap-1 rounded-md border border-[var(--inno-border)] px-2.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+							className="flex h-7 items-center gap-1 rounded-full border border-[var(--inno-border)] px-2.5 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 							onClick={() => workspaceStore.startEditing()}
 						>
-							<Pencil size={12} />
 							{t("common.edit", "Edit")}
 						</button>
 					)}
@@ -713,10 +707,10 @@ function DeleteConfirm({ paths, onConfirm, onCancel }: { paths: string[]; onConf
 					{names.length === 1 ? names[0] : `${names.length} items`}
 				</div>
 				<div className="flex justify-end gap-2">
-					<button className="rounded-md border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text)] hover:bg-[var(--inno-surface-muted)]" onClick={onCancel}>
+					<button className="rounded-full border border-[var(--inno-border)] px-3 py-1.5 text-xs text-[var(--inno-text)] hover:bg-[var(--inno-surface-muted)]" onClick={onCancel}>
 						{t("common.cancel", "Cancel")}
 					</button>
-					<button className="rounded-md bg-red-500 px-3 py-1.5 text-xs text-white hover:bg-red-600" onClick={onConfirm}>
+					<button className="rounded-full bg-red-500 px-3 py-1.5 text-xs text-white hover:bg-red-600" onClick={onConfirm}>
 						{t("common.delete", "Delete")}
 					</button>
 				</div>

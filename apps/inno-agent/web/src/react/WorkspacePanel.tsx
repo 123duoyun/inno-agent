@@ -86,7 +86,7 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 		return (
 			<aside className="relative h-full w-0 overflow-visible">
 				<button
-					className="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-lg text-[var(--inno-text-subtle)] transition-colors hover:bg-white/90 hover:text-[var(--inno-text)] hover:shadow-sm"
+					className="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-white/90 hover:text-[var(--inno-text)] hover:shadow-sm"
 					title={t("workspace.openWorkspace") ?? ""}
 					onClick={() => onModeChange("half")}
 				>
@@ -128,14 +128,14 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 				</div>
 				<div className="ml-1 flex shrink-0 items-center gap-1 border-l border-[var(--inno-border)] pl-1">
 					<button
-						className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
+						className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
 						title={mode === "full" ? (t("workspace.half") ?? "") : (t("workspace.full") ?? "")}
 						onClick={() => onModeChange(mode === "full" ? "half" : "full")}
 					>
 						{mode === "full" ? <Columns2 size={14} /> : <Maximize2 size={14} />}
 					</button>
 					<button
-						className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
+						className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
 						title={t("workspace.collapse") ?? ""}
 						onClick={() => onModeChange("collapsed")}
 					>
