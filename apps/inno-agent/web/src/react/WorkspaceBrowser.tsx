@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Tree, type NodeRendererProps, type TreeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
+import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
 import MDEditor from "@uiw/react-md-editor";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
@@ -471,17 +471,79 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 	);
 }
 
+/* ---------- Tree line config ---------- */
+
+type LineType = "full" | "half" | "corner" | "none";
+
+interface LineConfig {
+  type: LineType;
+  /** For "corner" type: whether to draw the vertical continuation below the corner. */
+  showContinuation: boolean;
+}
+
+/**
+ * Compute which type of tree-line stroke to render for every indent column.
+ *
+ * Rules:
+ * - Each indent column maps to one entry in the returned array (length = node.level).
+ * - The *last* entry is always a "corner" (L-shaped connector with rounded curve).
+ * - Earlier entries are "full" (trunk line through the whole row height) or
+ *   "none" (no line — used when the ancestor at that depth is the last child
+ *   of *its* parent, so no further siblings follow).
+ * - The corner's `showContinuation` is true only when the current node is *not*
+ *   the last child — i.e. the vertical trunk should continue below this row.
+ */
+function getLineConfigs(node: NodeApi<ArboristNode>): LineConfig[] {
+  const level = node.level;
+  if (level === 0) return [];
+
+  // Determine whether the node at each depth is the last child of its parent.
+  const lastChildAtLevel = new Map<number, boolean>();
+
+  // Current node
+  if (node.parent?.children?.length) {
+    const sibs = node.parent.children;
+    lastChildAtLevel.set(level, node.id === sibs[sibs.length - 1].id);
+  }
+
+  // Walk up the ancestors
+  let cursor: NodeApi<ArboristNode> | null = node.parent;
+  while (cursor) {
+    if (cursor.parent?.children?.length) {
+      const sibs = cursor.parent.children;
+      lastChildAtLevel.set(cursor.level, cursor.id === sibs[sibs.length - 1].id);
+    }
+    cursor = cursor.parent;
+  }
+
+  const configs: LineConfig[] = [];
+  for (let i = 0; i < level; i++) {
+    if (i === level - 1) {
+      // Direct parent → rounded L-corner
+      const isCurrentLast = lastChildAtLevel.get(level) ?? true;
+      configs.push({ type: "corner", showContinuation: !isCurrentLast });
+    } else {
+      // Ancestor trunk — full line unless the next-level ancestor is the last child
+      const isNextLast = lastChildAtLevel.get(i + 1) ?? false;
+      configs.push({ type: isNextLast ? "none" : "full", showContinuation: false });
+    }
+  }
+
+  return configs;
+}
+
 /* ---------- Custom Node Renderer ---------- */
 
 function Node({ node, style, dragHandle }: NodeRendererProps<ArboristNode>) {
 	const selected = node.isSelected;
 	const isDir = !node.isLeaf;
+	const level = node.level;
 
 	return (
 		<div
 			ref={dragHandle}
-			style={style}
-			className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs cursor-pointer select-none ${
+			style={{ ...style, height: "100%", paddingLeft: 0 }}
+			className={`group flex items-center gap-1.5 rounded-md pr-2 text-xs cursor-pointer select-none relative ${
 				selected
 					? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)] ring-1 ring-blue-100"
 					: "text-[var(--inno-text-muted)] hover:bg-slate-100/85 hover:text-[var(--inno-text)]"
@@ -502,9 +564,65 @@ function Node({ node, style, dragHandle }: NodeRendererProps<ArboristNode>) {
 				e.currentTarget.dispatchEvent(ev);
 			}}
 		>
+			{/* ── VSCode‑style tree lines ── */}
+			{(() => {
+				const configs = getLineConfigs(node);
+				if (configs.length === 0) return null;
+				return (
+					<div className="flex h-full shrink-0 items-center" style={{ width: level * 16 }}>
+						{configs.map((cfg, idx) => (
+							<div key={idx} className="relative h-full shrink-0" style={{ width: 16 }}>
+								{cfg.type === "corner" ? (
+									<>
+										{/* 拐角 L 元素：border-left 提供竖线，border-bottom + 圆角提供曲线和水平线 */}
+										<div
+											className="absolute"
+											style={{
+												left: "50%",
+												top: 0,
+												bottom: "50%",
+												width: "calc(50% + 6px)",
+												borderLeft: "1px solid #CBD5E1",
+												borderBottom: "1px solid #CBD5E1",
+												borderBottomLeftRadius: 3,
+											}}
+										/>
+										{/* 下方竖线（仅非末子）：从 50% 处继续往下 */}
+										{cfg.showContinuation && (
+											<div
+												className="absolute"
+												style={{
+													left: "50%",
+													top: "calc(50% - 3px)",
+													bottom: 0,
+													borderLeft: "1px solid #CBD5E1",
+												}}
+											/>
+										)}
+									</>
+								) : cfg.type === "none" ? null : (
+									<div
+										className="absolute"
+										style={{
+											left: "50%",
+											top: 0,
+											...(cfg.type === "half" ? { height: "50%" } : { bottom: 0 }),
+											borderLeft: "1px solid #CBD5E1",
+										}}
+									/>
+								)}
+							</div>
+						))}
+					</div>
+				);
+			})()}
+
+			{/* 节点图标 */}
 			<span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--inno-text-subtle)]">
 				{nodeIcon(node.data.name, isDir, node.isOpen)}
 			</span>
+
+			{/* 节点名称和输入框逻辑保持不变 */}
 			{node.isEditing ? (
 				<input
 					autoFocus
@@ -524,7 +642,7 @@ function Node({ node, style, dragHandle }: NodeRendererProps<ArboristNode>) {
 			) : (
 				<>
 					<span className="min-w-0 flex-1 truncate">{node.data.name}</span>
-					{node.isLeaf && <span className="text-[10px] opacity-50">{formatSize(node.data.size)}</span>}
+					{node.isLeaf && <span className="text-[10px] opacity-50 pl-1">{formatSize(node.data.size)}</span>}
 				</>
 			)}
 		</div>
