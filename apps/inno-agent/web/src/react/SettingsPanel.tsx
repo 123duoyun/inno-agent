@@ -161,9 +161,9 @@ function ModelEditForm({ model, settings, onClose }: {
 				</div>
 			</div>
 			<div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--inno-text-muted)]">
-				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.reasoning} onChange={(v) => setForm({ ...form, reasoning: v })} /></label>
-				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.makeDefault} onChange={(v) => setForm({ ...form, makeDefault: v })} /></label>
-				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.preserveApiKey} onChange={(v) => setForm({ ...form, preserveApiKey: v })} /></label>
+				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.reasoning} onChange={(v) => setForm({ ...form, reasoning: v })} /> {t("settings.form.reasoning")}</label>
+				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.makeDefault} onChange={(v) => setForm({ ...form, makeDefault: v })} /> {t("settings.form.makeDefault")}</label>
+				<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.preserveApiKey} onChange={(v) => setForm({ ...form, preserveApiKey: v })} /> {t("settings.form.preserveApiKey")}</label>
 			</div>
 			{formError ? <div className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">{formError}</div> : null}
 			<div className="mt-2 flex gap-2">
@@ -305,8 +305,8 @@ function NewProviderForm() {
 						</div>
 					</div>
 					<div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--inno-text-muted)]">
-						<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.reasoning} onChange={(v) => setForm({ ...form, reasoning: v })} /></label>
-						<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.makeDefault} onChange={(v) => setForm({ ...form, makeDefault: v })} /></label>
+						<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.reasoning} onChange={(v) => setForm({ ...form, reasoning: v })} /> {t("settings.form.reasoning")}</label>
+						<label className="flex items-center gap-1.5"><ToggleSwitch checked={form.makeDefault} onChange={(v) => setForm({ ...form, makeDefault: v })} /> {t("settings.form.makeDefault")}</label>
 					</div>
 					{formError ? <div className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">{formError}</div> : null}
 					{saveMessage ? <div className="mt-2 rounded bg-green-50 px-2 py-1 text-xs text-green-700">{saveMessage}</div> : null}
@@ -501,7 +501,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 									<input className={inputCls} type="password" placeholder={t("settings.channels.feishu.appSecretHint") ?? ""} value={feishuAppSecret} onChange={(e) => setFeishuAppSecret(e.target.value)} />
 								</div>
 								<div className="col-span-2 flex items-center gap-3">
+										<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 										<ToggleSwitch checked={feishuPersonalOnly} onChange={setFeishuPersonalOnly} />
+										{t("settings.channels.personalOnly")}
+									</label>
 								</div>
 								<div className="col-span-2">
 									<label className={labelCls}>{t("settings.channels.allowedUserIds")}</label>
@@ -527,7 +530,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 									<input className={inputCls} value={qqSidecarUrl} onChange={(e) => setQqSidecarUrl(e.target.value)} />
 								</div>
 								<div className="col-span-2 flex items-center gap-3">
+										<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 										<ToggleSwitch checked={qqPersonalOnly} onChange={setQqPersonalOnly} />
+										{t("settings.channels.personalOnly")}
+									</label>
 								</div>
 								<div className="col-span-2">
 									<label className={labelCls}>{t("settings.channels.allowedUserIds")}</label>
@@ -600,7 +606,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 									)}
 								</div>
 								<div className="flex items-center gap-3">
+										<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 										<ToggleSwitch checked={wechatPersonalOnly} onChange={setWechatPersonalOnly} />
+										{t("settings.channels.personalOnly")}
+									</label>
 								</div>
 								<div>
 									<label className={labelCls}>{t("settings.channels.allowedUserIds")}</label>
