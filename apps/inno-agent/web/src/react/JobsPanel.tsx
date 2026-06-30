@@ -165,8 +165,8 @@ export function JobsPanel() {
 	const previewLabel = humanizeSchedule(form.schedule, humanI18n);
 
 	return (
-		<div className="flex h-full flex-col p-3">
-			<div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+		<div className="flex h-full flex-col p-0">
+			<div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--inno-surface)]">
 				<div className="flex items-center justify-between border-b border-[var(--inno-border)] px-3 py-3">
 					<div>
 						<h3 className="text-sm font-medium text-[var(--inno-text)]">{t("jobs.title")}</h3>
@@ -222,21 +222,21 @@ export function JobsPanel() {
 											{isRunning ? t("jobs.actions.running") : t("jobs.actions.run")}
 										</button>
 										<button
-											className="flex items-center gap-1 rounded bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
+											className="flex items-center gap-1 rounded-full bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
 											title={t("jobs.actions.edit")}
 											onClick={() => openEditForm(job)}
 										>
 											{t("jobs.actions.edit")}
 										</button>
 										<button
-											className="flex items-center gap-1 rounded bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
+											className="flex items-center gap-1 rounded-full bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]"
 											title={job.enabled ? t("jobs.actions.disable") : t("jobs.actions.enable")}
 											onClick={() => void jobsStore.update(job.id, { enabled: !job.enabled })}
 										>
 											{job.enabled ? t("jobs.actions.disable") : t("jobs.actions.enable")}
 										</button>
 										<button
-											className="flex items-center gap-1 rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+											className="flex items-center gap-1 rounded-full px-2 py-1 text-xs text-red-600 hover:bg-red-50"
 											title={t("jobs.actions.delete")}
 											onClick={() => void jobsStore.remove(job.id)}
 										>
@@ -323,7 +323,10 @@ export function JobsPanel() {
 								/>
 							</label>
 
-								<ToggleSwitch checked={form.enabled} onChange={(v) => setForm({ ...form, enabled: v })} />
+								<label className="flex items-center gap-2 text-sm text-[var(--inno-text)]">
+									<ToggleSwitch checked={form.enabled} onChange={(v) => setForm({ ...form, enabled: v })} />
+									{t("jobs.form.enabled")}
+								</label>
 						</div>
 						<div className="mt-4 flex justify-end gap-2">
 							{formError ? <div className="mr-auto text-xs text-red-600">{formError}</div> : null}

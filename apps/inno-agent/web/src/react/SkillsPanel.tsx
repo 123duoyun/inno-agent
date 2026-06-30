@@ -284,9 +284,9 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 	}, [state.skillTree]);
 
 	return (
-		<div className={`grid h-full min-h-0 gap-3 transition-[grid-template-columns] duration-200 ${sidebarOpen ? "grid-cols-[240px_minmax(0,1fr)]" : "grid-cols-[0px_minmax(0,1fr)]"}`}>
+		<div className={`grid h-full min-h-0 gap-0 transition-[grid-template-columns] duration-200 ${sidebarOpen ? "grid-cols-[240px_minmax(0,1fr)]" : "grid-cols-[0px_minmax(0,1fr)]"}`}>
 			{/* File tree sidebar */}
-			<aside className={`flex min-h-0 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] transition-opacity duration-200 ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+			<aside className={`flex min-h-0 flex-col overflow-hidden border-r border-[var(--inno-border)] bg-[var(--inno-surface)] transition-opacity duration-200 ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}>
 				{/* Skill header */}
 				<div className="flex items-center gap-2 border-b border-[var(--inno-border)] px-2 py-2">
 					<button className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={onBack}>
@@ -306,10 +306,10 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 				<div className="flex items-center gap-1 border-b border-[var(--inno-border)] px-2 py-1.5">
 					<ToggleSwitch checked={skill.enabled} onChange={(v) => void skillsStore.setEnabled(skill.name, v)} />
 					<div className="flex-1" />
-					<button className="flex h-6 w-6 items-center justify-center rounded text-[var(--inno-text-subtle)] hover:bg-slate-200 hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>
+					<button className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-slate-200 hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>
 						<RefreshCw size={12} />
 					</button>
-					<button className="flex h-6 w-6 items-center justify-center rounded text-red-400 hover:bg-red-50 hover:text-red-600" title={t("common.delete", "Delete")} onClick={() => { void skillsStore.remove(skill.name); onBack(); }}>
+					<button className="flex h-6 w-6 items-center justify-center rounded-full text-red-400 hover:bg-red-50 hover:text-red-600" title={t("common.delete", "Delete")} onClick={() => { void skillsStore.remove(skill.name); onBack(); }}>
 						<Trash2 size={12} />
 					</button>
 				</div>
@@ -340,7 +340,7 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 			</aside>
 
 			{/* File content pane */}
-			<section className="flex min-w-0 min-h-0 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+			<section className="flex min-w-0 min-h-0 flex-col overflow-hidden bg-[var(--inno-surface)]">
 				<SkillFilePane skillName={skill.name} onToggleSidebar={() => setSidebarOpen((v) => !v)} sidebarOpen={sidebarOpen} />
 			</section>
 		</div>
@@ -483,7 +483,7 @@ export function SkillsPanel() {
 	// Detail view — file browser
 	if (activeSkill) {
 		return (
-			<div className="flex h-full flex-col p-3">
+			<div className="flex h-full flex-col p-0">
 				<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 					<SkillDetail skill={activeSkill} onBack={() => skillsStore.deselectSkill()} />
 				</div>
@@ -493,8 +493,8 @@ export function SkillsPanel() {
 
 	// List view — one skill per row
 	return (
-		<div className="relative flex h-full flex-col p-3">
-			<div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+		<div className="relative flex h-full flex-col p-0">
+			<div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--inno-surface)]">
 				{/* Toolbar */}
 				<div className="flex items-center justify-between gap-3 border-b border-[var(--inno-border)] px-3 py-2.5">
 					<h3 className="text-sm font-medium text-[var(--inno-text)]">{t("skills.title")}</h3>

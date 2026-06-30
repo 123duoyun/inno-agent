@@ -431,7 +431,7 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 			<div className="flex h-10 items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface-muted)] px-2">
 				<div className="flex min-w-0 flex-1 items-center gap-2">
 					<button
-						className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)] disabled:opacity-40"
+						className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)] disabled:opacity-40"
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
 					>
@@ -931,10 +931,10 @@ export function WorkspaceBrowser() {
 							{activeWorkspaceName || "工作区"}
 						</span>
 					</div>
-					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded text-[var(--inno-text-subtle)] transition-colors hover:bg-violet-100 hover:text-violet-600 disabled:opacity-40" title={t("files.uploadSkill", "上传技能包 (.zip/.md) 到 .skills")} onClick={() => skillUploadRef.current?.click()}>
+					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-violet-100 hover:text-violet-600 disabled:opacity-40" title={t("files.uploadSkill", "上传技能包 (.zip/.md) 到 .skills")} onClick={() => skillUploadRef.current?.click()}>
 						<Sparkles size={13} />
 					</button>
-					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded text-[var(--inno-text-subtle)] transition-colors hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-40" title={t("preview.refresh", "Refresh")} onClick={() => void workspaceStore.loadTree()}>
+					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-40" title={t("preview.refresh", "Refresh")} onClick={() => void workspaceStore.loadTree()}>
 						<RefreshCw size={13} />
 					</button>
 					<input ref={skillUploadRef} type="file" multiple accept=".zip,application/zip,.md,text/markdown" className="hidden" onChange={handleSkillUploadChange} />

@@ -45,7 +45,7 @@ function Section({
 }) {
 	const [collapsed, setCollapsed] = useState(defaultCollapsed);
 	return (
-		<section className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+		<section className="bg-[var(--inno-surface)]">
 			<div className="flex items-center justify-between gap-3 px-4 py-3.5">
 				<button
 					className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
@@ -415,10 +415,10 @@ function GoalCard({ goal }: { goal: LearningGoal }) {
 						) : null}
 					</div>
 					<div className="flex shrink-0 gap-1.5">
-						<button className="rounded bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]" onClick={() => setEditing(true)}>
+						<button className="rounded-full bg-[var(--inno-surface-muted)] px-2 py-1 text-xs text-[var(--inno-text-muted)] hover:bg-slate-200 hover:text-[var(--inno-text)]" onClick={() => setEditing(true)}>
 							{t("common.edit")}
 						</button>
-						<button className="rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => void doDelete()}>
+						<button className="rounded-full px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => void doDelete()}>
 							{t("common.delete")}
 						</button>
 					</div>
@@ -859,9 +859,9 @@ export function LearnerProfilePanel() {
 	}, []);
 
 	return (
-		<div className="h-full overflow-y-auto p-3">
-			<div className="flex flex-col gap-3">
-				<div className="flex items-center justify-between rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] px-4 py-3">
+		<div className="h-full overflow-y-auto p-0">
+			<div className="flex flex-col gap-0">
+				<div className="flex items-center justify-between bg-[var(--inno-surface)] px-4 py-3">
 					<div>
 						<h3 className="text-sm font-medium text-[var(--inno-text)]">{t("profile.title")}</h3>
 						<p className="text-xs text-[var(--inno-text-muted)]">{t("profile.subtitle")}</p>
@@ -871,7 +871,7 @@ export function LearnerProfilePanel() {
 							</p>
 						) : null}
 					</div>
-					<button className="rounded-full border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={() => void learnerStore.load()}>
+					<button className="rounded-full inno-primary-button px-3 py-1.5 text-sm" onClick={() => void learnerStore.load()}>
 						{t("profile.refresh")}
 					</button>
 				</div>

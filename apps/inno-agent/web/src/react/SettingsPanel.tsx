@@ -122,7 +122,7 @@ function ModelEditForm({ model, settings, onClose }: {
 		<div className="rounded-lg border border-[var(--inno-accent-soft)] bg-blue-50/50 p-3">
 			<div className="mb-2 flex items-center justify-between">
 				<span className="text-xs font-medium text-[var(--inno-text)]">{t("settings.editModel", "Edit Model")}</span>
-				<button className="flex h-6 w-6 items-center justify-center rounded text-[var(--inno-text-subtle)] hover:bg-slate-200 hover:text-[var(--inno-text)]" onClick={onClose}><X size={14} /></button>
+				<button className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-slate-200 hover:text-[var(--inno-text)]" onClick={onClose}><X size={14} /></button>
 			</div>
 			<div className="grid grid-cols-2 gap-2">
 				<div>
@@ -257,17 +257,19 @@ function NewProviderForm() {
 	}
 
 	return (
-		<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+		<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)]">
 			<button
 				className="flex w-full items-center justify-between px-4 py-3 text-left"
 				onClick={() => { setExpanded((v) => !v); setFormError(null); setSaveMessage(null); }}
 			>
 				<div className="flex items-center gap-2">
+					<ChevronRight size={14} className={`text-[var(--inno-text-subtle)] transition-transform ${expanded ? "rotate-90" : ""}`} />
 					<span className="text-sm font-medium text-[var(--inno-text)]">{t("settings.newProvider")}</span>
 				</div>
+				<Plus size={14} className="text-[var(--inno-text-subtle)]" />
 			</button>
 			{expanded && (
-				<div className="border-t border-[var(--inno-border)] px-4 pb-4 pt-3">
+				<div className="px-4 pb-4 pt-1">
 					<div className="grid grid-cols-2 gap-2">
 						<div>
 							<label className="mb-0.5 block text-[10px] text-[var(--inno-text-muted)]">{t("settings.form.providerId")}</label>
@@ -465,12 +467,13 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 	const labelCls = "mb-0.5 block text-[10px] text-[var(--inno-text-muted)]";
 
 	return (
-		<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)]">
+		<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)]">
 			<button
 				className="flex w-full items-center justify-between px-4 py-3 text-left"
 				onClick={() => { setExpanded((v) => !v); setFormError(null); setSaveMsg(null); }}
 			>
 				<div className="flex items-center gap-2">
+					<ChevronRight size={14} className={`text-[var(--inno-text-subtle)] transition-transform ${expanded ? "rotate-90" : ""}`} />
 					<span className="text-sm font-medium text-[var(--inno-text)]">{t("settings.channels.title")}</span>
 				</div>
 				<div className="flex items-center gap-2 text-xs text-[var(--inno-text-subtle)]">
@@ -480,7 +483,7 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 				</div>
 			</button>
 			{expanded && (
-				<div className="border-t border-[var(--inno-border)] px-4 pb-4 pt-3 grid gap-4">
+				<div className="px-4 pb-4 pt-1 grid gap-4">
 					{/* Feishu */}
 					<div className="rounded-lg border border-[var(--inno-border)] p-3">
 						<div className="mb-2 flex items-center justify-between">
@@ -488,7 +491,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 								<div className="text-xs font-medium text-[var(--inno-text)]">{t("settings.channels.feishu.title")}</div>
 								<div className="text-[10px] text-[var(--inno-text-subtle)]">{t("settings.channels.feishu.desc")}</div>
 							</div>
+								<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 								<ToggleSwitch checked={feishuEnabled} onChange={setFeishuEnabled} />
+								{t("settings.channels.enabled")}
+							</label>
 						</div>
 						{feishuEnabled && (
 							<div className="grid grid-cols-2 gap-2">
@@ -521,7 +527,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 								<div className="text-xs font-medium text-[var(--inno-text)]">{t("settings.channels.qq.title")}</div>
 								<div className="text-[10px] text-[var(--inno-text-subtle)]">{t("settings.channels.qq.desc")}</div>
 							</div>
+								<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 								<ToggleSwitch checked={qqEnabled} onChange={setQqEnabled} />
+								{t("settings.channels.enabled")}
+							</label>
 						</div>
 						{qqEnabled && (
 							<div className="grid grid-cols-2 gap-2">
@@ -550,7 +559,10 @@ function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 								<div className="text-xs font-medium text-[var(--inno-text)]">{t("settings.channels.wechat.title")}</div>
 								<div className="text-[10px] text-[var(--inno-text-subtle)]">{t("settings.channels.wechat.desc")}</div>
 							</div>
+								<label className="flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]">
 								<ToggleSwitch checked={wechatEnabled} onChange={setWechatEnabled} />
+								{t("settings.channels.enabled")}
+							</label>
 						</div>
 						{wechatEnabled && (
 							<div className="grid gap-2">
@@ -708,7 +720,7 @@ function ContentHubSettings({ settings }: { settings: InnoSettings }) {
 		: `${t("settings.contentHub.bundle", "自托管服务")} · ${baseUrl || "?"}`;
 
 	return (
-		<div className="min-w-0 rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
+		<div className="min-w-0 border-b border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
 			<button className="inno-settings-card-toggle flex w-full min-w-0 items-start gap-2 text-left" onClick={() => setOpen((v) => !v)}>
 				<div className="min-w-0 flex-1">
 					<h4 className="break-words text-sm font-medium text-[var(--inno-text)]">{t("settings.contentHub.title", "内容源(技能库 + 预设)")}</h4>
@@ -854,7 +866,7 @@ function MemorySettings({ settings }: { settings: InnoSettings }) {
 	];
 
 	return (
-		<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
+		<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
 			<h4 className="mb-3 text-sm font-medium text-[var(--inno-text)]">{t("settings.memorySection")}</h4>
 			{locked ? <p className="mb-3 text-xs text-amber-600">{t("settings.simpleMode.memoryLocked")}</p> : null}
 			<div className="grid gap-4">
@@ -901,7 +913,7 @@ function SimpleModeSettings({ settings }: { settings: InnoSettings }) {
 	}
 
 	return (
-		<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
+		<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
 			<div className="flex items-start justify-between gap-3">
 				<div className="min-w-0">
 					<h4 className="text-sm font-medium text-[var(--inno-text)]">{t("settings.simpleMode.title")}</h4>
@@ -948,10 +960,10 @@ export function SettingsPanel() {
 	const models = state.settings?.availableModels ?? state.settings?.configuredModels ?? [];
 
 	return (
-		<div className="h-full overflow-y-auto p-3">
-			<div className="grid gap-3">
+		<div className="h-full overflow-y-auto p-0">
+			<div className="grid gap-0">
 				{/* Status cards */}
-				<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
+				<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
 					<div className="mb-3 flex items-center justify-between">
 						<h3 className="text-sm font-medium text-[var(--inno-text)]">{t("settings.title")}</h3>
 						<div className="flex items-center gap-2">
@@ -967,7 +979,7 @@ export function SettingsPanel() {
 									<option value="en">{t("settings.languageOptions.en")}</option>
 								</select>
 							</label>
-							<button className="rounded-full border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-1.5 text-sm text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={() => void settingsStore.load()}>
+							<button className="rounded-full inno-primary-button px-3 py-1.5 text-sm" onClick={() => void settingsStore.load()}>
 								{t("settings.refresh")}
 							</button>
 						</div>
@@ -995,7 +1007,7 @@ export function SettingsPanel() {
 				</div>
 
 				{/* Models */}
-				<div className="rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
+				<div className="border-b border-[var(--inno-border)] bg-[var(--inno-surface)] p-4">
 					<h4 className="mb-3 text-sm font-medium text-[var(--inno-text)]">{t("settings.models")}</h4>
 					<div className="grid gap-2">
 						{models.map((model) => {
@@ -1022,14 +1034,14 @@ export function SettingsPanel() {
 									</div>
 									<div className="flex items-center gap-1.5">
 										<button
-											className="flex h-7 w-7 items-center justify-center rounded text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] group-hover:opacity-100"
+											className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] group-hover:opacity-100"
 											title={t("common.edit", "Edit")}
 											onClick={() => setEditingModel(key)}
 										>
 											<Pencil size={13} />
 										</button>
 										<button
-											className="flex h-7 w-7 items-center justify-center rounded text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+											className="flex h-7 w-7 items-center justify-center rounded-full text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
 											title={t("common.delete", "Delete")}
 											onClick={() => {
 												if (window.confirm(t("settings.confirmDelete", { id: `${model.provider}/${model.id}` }) ?? "")) {

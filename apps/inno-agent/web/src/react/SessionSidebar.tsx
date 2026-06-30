@@ -201,7 +201,7 @@ function GroupHeader({
 				<div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/wsh:opacity-100">
 					{group.canCreate ? (
 						<button
-							className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+							className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 							title="在此工作区新建对话"
 							onClick={(e) => { e.stopPropagation(); onNewChat(); }}
 						>
@@ -211,14 +211,14 @@ function GroupHeader({
 					{group.manageable ? (
 						<>
 							<button
-								className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+								className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 								title="重命名工作区"
 								onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
 							>
 								<Pencil size={11} />
 							</button>
 							<button
-								className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-red-50 hover:text-red-600"
+								className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-red-50 hover:text-red-600"
 								title="删除工作区"
 								onClick={(e) => { e.stopPropagation(); onDelete(); }}
 							>
@@ -332,7 +332,7 @@ function SessionCard({
 						<span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" />
 					) : null}
 					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:opacity-40"
+						className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:opacity-40"
 						title="AI generate topic"
 						disabled={generatingId === session.id}
 						onClick={(e) => { e.stopPropagation(); onGenerate(); }}
@@ -344,21 +344,21 @@ function SessionCard({
 						)}
 					</button>
 					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+						className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 						title="Rename"
 						onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
 					>
 						<Pencil size={12} />
 					</button>
 					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+						className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 						title={session.archived ? "Unarchive" : "Archive"}
 						onClick={(e) => { e.stopPropagation(); onArchive(); }}
 					>
 						{session.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
 					</button>
 					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-red-50 hover:text-red-600"
+						className="rounded-full p-0.5 text-[var(--inno-text-subtle)] hover:bg-red-50 hover:text-red-600"
 						title="Delete"
 						onClick={(e) => { e.stopPropagation(); onDelete(); }}
 					>
@@ -699,7 +699,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 									<div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
 										<div className="inno-sidebar-title min-w-0 truncate font-medium text-[var(--inno-text)]">{session.name}</div>
 										<button
-											className="rounded p-0.5 text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover/srow:opacity-100"
+											className="rounded-full p-0.5 text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover/srow:opacity-100"
 											title="删除对话"
 											onClick={(e) => { e.stopPropagation(); handleDelete(session); }}
 										>

@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { PanelRightOpen, PanelRightClose, Columns2, Maximize2 } from "lucide-react";
+import {
+	PanelRightOpen,
+	PanelRightClose,
+	Columns2,
+	Maximize2,
+	FolderKanban,
+	BookOpen,
+	UserRound,
+	BriefcaseBusiness,
+	Sparkles,
+	Settings,
+} from "lucide-react";
 import type { RightPanelTab, WorkspaceMode } from "../stores/app-store.js";
 import { settingsStore } from "../stores/settings-store.js";
 import { useStoreSnapshot } from "./hooks.js";
@@ -22,6 +33,15 @@ interface WorkspacePanelProps {
 }
 
 const TAB_ORDER: RightPanelTab[] = ["preview", "notebook", "profile", "jobs", "skills", "settings"];
+
+const TAB_ICONS: Record<RightPanelTab, React.ElementType> = {
+	preview: FolderKanban,
+	notebook: BookOpen,
+	profile: UserRound,
+	jobs: BriefcaseBusiness,
+	skills: Sparkles,
+	settings: Settings,
+};
 
 function WorkspaceContent({ activeTab }: { activeTab: RightPanelTab }) {
 	switch (activeTab) {
@@ -96,7 +116,7 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 		);
 	}
 
-	const compact = mode !== "full" && width < 500;
+	const compact = mode !== "full" && width < 380;
 
 	return (
 		<aside className="workspace-panel inno-workspace-scope relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden border-l border-[var(--inno-border)] bg-[var(--inno-workspace-bg)]">
@@ -114,14 +134,16 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 					{tabs.map((tab) => {
 						const label = t(`workspace.tabs.${tab}`);
 						const isActive = activeTab === tab;
+						const Icon = TAB_ICONS[tab];
 						return (
 							<button
 								key={tab}
-								className={`inno-workspace-tab flex h-7 shrink-0 items-center whitespace-nowrap transition-colors px-2 ${isActive ? "text-[var(--inno-text)]" : "text-[var(--inno-text-muted)]"}`}
+								className={`inno-workspace-tab flex h-7 shrink-0 items-center gap-1 whitespace-nowrap transition-colors px-2 ${isActive ? "text-[var(--inno-text)]" : "text-[var(--inno-text-muted)]"}`}
 								style={{ fontWeight: isActive ? 600 : 400, borderBottom: isActive ? "2px solid #1f2328" : "2px solid transparent" }}
 								onClick={() => onTabChange(tab)}
+								title={compact ? label : undefined}
 							>
-								{label}
+								{compact ? <Icon size={13} /> : label}
 							</button>
 						);
 					})}
