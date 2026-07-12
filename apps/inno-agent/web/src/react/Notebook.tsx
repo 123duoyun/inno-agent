@@ -64,9 +64,9 @@ export function Notebook() {
 	}, []);
 
 	return (
-		<div className={`relative grid h-full min-h-0 gap-3 p-3 transition-[grid-template-columns] duration-200 max-md:grid-cols-[minmax(0,1fr)] ${sidebarOpen ? "grid-cols-[260px_minmax(0,1fr)]" : "grid-cols-[0px_minmax(0,1fr)]"}`}>
-			<aside className={`flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] transition-opacity duration-200 max-md:absolute max-md:inset-3 max-md:z-20 ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0 max-md:hidden"}`}>
-				<div className="flex gap-2 border-b border-[var(--inno-border)] p-2">
+		<div className={`relative grid h-full min-h-0 gap-0 p-0 transition-[grid-template-columns] duration-200 max-md:grid-cols-[minmax(0,1fr)] ${sidebarOpen ? "grid-cols-[260px_minmax(0,1fr)]" : "grid-cols-[0px_minmax(0,1fr)]"}`}>
+		<aside className={`flex h-full min-h-0 flex-col overflow-hidden border border-[var(--inno-border)] bg-[var(--inno-surface)] transition-opacity duration-200 max-md:absolute max-md:inset-3 max-md:z-20 ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0 max-md:hidden"}`}>
+			<div className="flex gap-2 border-b border-[var(--inno-border)] p-2">
 					<input
 						type="text"
 						className="min-w-0 flex-1 rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-1.5 text-sm focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
@@ -139,7 +139,7 @@ export function Notebook() {
 				</div>
 			</aside>
 
-			<section className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] max-md:col-start-1 max-md:row-start-1">
+		<section className="flex min-h-0 min-w-0 flex-col overflow-hidden border border-[var(--inno-border)] bg-[var(--inno-surface)] max-md:col-start-1 max-md:row-start-1">
 				<div className="@container flex items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2">
 					<div className="flex items-center gap-2">
 						<button
