@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -21,6 +22,11 @@ import {
 	GripVertical,
 	ChevronUp,
 	ChevronDown,
+	Folder,
+	FolderOpen,
+	MoreHorizontal,
+	Pin,
+	PinOff,
 } from "lucide-react";
 import { appStore } from "../stores/app-store.js";
 import { chatStore } from "../stores/chat-store.js";
@@ -134,6 +140,9 @@ function GroupHeader({
 	onDragEnd,
 	onMoveUp,
 	onMoveDown,
+	pinned,
+	onTogglePin,
+	onOpenMenu,
 }: {
 	group: WsGroup;
 	collapsed: boolean;
@@ -157,8 +166,15 @@ function GroupHeader({
 	onDragEnd: () => void;
 	onMoveUp: () => void;
 	onMoveDown: () => void;
+	pinned: boolean;
+	onTogglePin: () => void;
+	onOpenMenu: (ref: HTMLButtonElement) => void;
 }) {
 	const { t } = useTranslation();
+	const badgeRef = useRef<HTMLButtonElement>(null);
+	const openMenu = useCallback(() => {
+		if (badgeRef.current) onOpenMenu(badgeRef.current);
+	}, [onOpenMenu]);
 	return (
 		<div
 			draggable={reorderMode}
@@ -184,17 +200,13 @@ function GroupHeader({
 				title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
 				onClick={onToggle}
 			>
-				<ChevronRight
-					size={12}
-					className={`transition-transform duration-150 ${collapsed ? "" : "rotate-90"}`}
-				/>
+				{collapsed ? <Folder size={12} /> : <FolderOpen size={12} />}
 			</button>
 			<button
 				className="inno-sidebar-meta flex min-w-0 flex-1 items-center gap-1.5 font-semibold uppercase text-[var(--inno-text-subtle)] transition-colors hover:text-[var(--inno-text-muted)]"
 				title={group.canCreate ? t("sidebar.loadWorkspace") : undefined}
 				onClick={() => { if (!reorderMode) onSelect(); }}
 			>
-				<FolderKanban size={12} className="shrink-0 text-[var(--inno-text-subtle)]" />
 				{editing ? (
 					<input
 						className="min-w-0 flex-1 rounded border border-[var(--inno-accent)] bg-[var(--inno-surface)] px-1 py-0.5 text-[11px] normal-case text-[var(--inno-text)] outline-none focus-visible:shadow-[var(--inno-ring)]"
@@ -213,62 +225,110 @@ function GroupHeader({
 					<span className="min-w-0 truncate normal-case text-[var(--inno-text-muted)]">{group.name}</span>
 				)}
 			</button>
-			{reorderMode ? (
-				<div className="flex items-center gap-0.5">
-					<button
-						type="button"
-						disabled={!canMoveUp}
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:cursor-not-allowed disabled:opacity-25"
-						title={t("sidebar.moveWorkspaceUp")}
-						onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
-					>
-						<ChevronUp size={12} />
-					</button>
-					<button
-						type="button"
-						disabled={!canMoveDown}
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:cursor-not-allowed disabled:opacity-25"
-						title={t("sidebar.moveWorkspaceDown")}
-						onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
-					>
-						<ChevronDown size={12} />
-					</button>
-				</div>
-			) : !editing ? (
-				<div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/wsh:opacity-100">
-					{group.canCreate ? (
-						<button
-							className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-							title={t("sidebar.newChatInWorkspace")}
-							onClick={(e) => { e.stopPropagation(); onNewChat(); }}
-						>
-							<Plus size={12} />
-						</button>
-					) : null}
-					{group.manageable ? (
-						<>
-							<button
-								className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-								title={t("sidebar.renameWorkspace")}
-								onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
-							>
-								<Pencil size={12} />
-							</button>
-							<button
-								className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-danger-bg)] hover:text-[var(--inno-danger)]"
-								title={t("sidebar.deleteWorkspace")}
-								onClick={(e) => { e.stopPropagation(); onDelete(); }}
-							>
-								<Trash2 size={12} />
-							</button>
-						</>
-					) : null}
-				</div>
-			) : null}
-			<span className="inno-sidebar-meta rounded-full bg-[var(--inno-surface-muted)] px-1.5 py-0 font-medium text-[var(--inno-text-muted)] tabular-nums">
-				{group.sessions.length}
-			</span>
+		{reorderMode ? (
+			<div className="flex items-center gap-0.5">
+				<button
+					type="button"
+					disabled={!canMoveUp}
+					className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:cursor-not-allowed disabled:opacity-25"
+					title={t("sidebar.moveWorkspaceUp")}
+					onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
+				>
+					<ChevronUp size={12} />
+				</button>
+				<button
+					type="button"
+					disabled={!canMoveDown}
+					className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:cursor-not-allowed disabled:opacity-25"
+					title={t("sidebar.moveWorkspaceDown")}
+					onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
+				>
+					<ChevronDown size={12} />
+				</button>
+			</div>
+		) : (
+			<button
+				ref={badgeRef}
+				className="group/count inno-sidebar-meta relative flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--inno-surface-muted)] px-1.5 py-0 font-medium text-[var(--inno-text-muted)] tabular-nums transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)]"
+				title={t("sidebar.workspaceMenu")}
+				onClick={(e) => { e.stopPropagation(); openMenu(); }}
+			>
+				{pinned && <Pin size={9} className="absolute -top-0.5 -right-0.5 text-[var(--inno-accent)]" />}
+				<span aria-hidden className="group-hover/wsh:hidden">{group.sessions.length}</span>
+				<span aria-hidden className="hidden group-hover/wsh:inline">…</span>
+			</button>
+		)}
 		</div>
+	);
+}
+
+/* ── Workspace header popup menu ── */
+
+interface WorkspaceMenuProps {
+	group: WsGroup;
+	anchorRef: React.RefObject<HTMLButtonElement | null>;
+	onClose: () => void;
+	onRename: () => void;
+	onTogglePin: () => void;
+	onNewChat: () => void;
+	onDelete: () => void;
+	pinned: boolean;
+}
+
+function WorkspaceMenu({ group, anchorRef, onClose, onRename, onTogglePin, onNewChat, onDelete, pinned }: WorkspaceMenuProps) {
+	const { t } = useTranslation();
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	// Close on any outside click / Esc.
+	useEffect(() => {
+		const onDocClick = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
+		};
+		const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+		document.addEventListener("mousedown", onDocClick);
+		document.addEventListener("keydown", onKey);
+		return () => {
+			document.removeEventListener("mousedown", onDocClick);
+			document.removeEventListener("keydown", onKey);
+		};
+	}, [onClose]);
+
+	// Position the menu below the anchor badge.
+	const pos = useMemo(() => {
+		const r = anchorRef.current?.getBoundingClientRect();
+		if (!r) return null;
+		return { top: r.bottom + 4, left: Math.min(r.right, window.innerWidth - 160) };
+	}, [anchorRef]);
+
+	if (!pos) return null;
+
+	const menuItems: Array<{ icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean; show: boolean }> = [
+		{ icon: <Pencil size={12} />, label: t("sidebar.renameWorkspace"), onClick: () => { onRename(); onClose(); }, show: group.manageable },
+		{ icon: pinned ? <PinOff size={12} /> : <Pin size={12} />, label: pinned ? t("sidebar.unpinWorkspace") : t("sidebar.pinWorkspace"), onClick: () => { onTogglePin(); onClose(); }, show: true },
+		{ icon: <Plus size={12} />, label: t("sidebar.newChatInWorkspace"), onClick: () => { onNewChat(); onClose(); }, show: group.canCreate },
+		{ icon: <Trash2 size={12} />, label: t("sidebar.deleteWorkspace"), onClick: () => { onDelete(); onClose(); }, danger: true, show: group.manageable },
+	];
+	const visible = menuItems.filter((m) => m.show);
+
+	return createPortal(
+		<div
+			ref={menuRef}
+			className="fixed z-[100] whitespace-nowrap rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] py-1 shadow-lg"
+			style={{ top: pos.top, left: pos.left, transform: "translateX(-100%)" }}
+		>
+			{visible.map((item) => (
+				<button
+					key={item.label}
+					className={`flex w-full items-center gap-2 pl-2 pr-8 py-1 text-left leading-tight transition-colors hover:bg-[var(--inno-surface-muted)] ${item.danger ? "text-[var(--inno-danger)]" : "text-[var(--inno-text)]"}`}
+						style={{ fontSize: "11px" }}
+					onClick={item.onClick}
+				>
+					{item.icon}
+					<span>{item.label}</span>
+				</button>
+			))}
+		</div>,
+		document.body,
 	);
 }
 
@@ -348,61 +408,6 @@ function SessionCard({
 				)}
 				<span className="inno-sidebar-meta shrink-0 pt-0.5 tabular-nums text-[var(--inno-text-subtle)]">{formatTime(session.updatedAt)}</span>
 			</div>
-
-			{/* Preview */}
-			{session.preview && session.preview !== session.name ? (
-				<div className="inno-sidebar-meta mt-0.5 truncate text-[var(--inno-text-subtle)]">{session.preview}</div>
-			) : null}
-
-			{/* Bottom row: channels + actions */}
-			<div className="mt-1.5 flex items-center justify-between gap-1">
-				<div className="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-150">
-					{opening ? (
-						<Spinner size={12} className="text-[var(--inno-border-strong)]" />
-					) : null}
-					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:opacity-40"
-						title={t("sidebar.generateTopic")}
-						disabled={generatingId === session.id}
-						onClick={(e) => { e.stopPropagation(); onGenerate(); }}
-					>
-						{generatingId === session.id ? (
-							<Spinner size={12} />
-						) : (
-							<Sparkles size={12} />
-						)}
-					</button>
-					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-						title={t("sidebar.rename")}
-						onClick={(e) => { e.stopPropagation(); onStartEdit(); }}
-					>
-						<Pencil size={12} />
-					</button>
-					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-						title={t("sessions.export", "导出为 Markdown")}
-						onClick={(e) => { e.stopPropagation(); onExport(); }}
-					>
-						<Download size={12} />
-					</button>
-					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-						title={session.archived ? t("sidebar.unarchive") : t("sidebar.archive")}
-						onClick={(e) => { e.stopPropagation(); onArchive(); }}
-					>
-						{session.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
-					</button>
-					<button
-						className="rounded p-0.5 text-[var(--inno-text-subtle)] hover:bg-[var(--inno-danger-bg)] hover:text-[var(--inno-danger)]"
-						title={t("common.delete")}
-						onClick={(e) => { e.stopPropagation(); onDelete(); }}
-					>
-						<Trash2 size={12} />
-					</button>
-					<span className="inno-sidebar-meta ml-0.5 tabular-nums text-[var(--inno-text-subtle)]">{session.messageCount}</span>
-				</div>
-			</div>
 		</div>
 	);
 }
@@ -417,6 +422,25 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 	const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set(["archived"]));
 	const [showSearch, setShowSearch] = useState(false);
 	const [editingWsId, setEditingWsId] = useState<string | null>(null);
+	/** Pinned workspace IDs — stored in localStorage so they survive reloads. */
+	const [pinnedWsIds, setPinnedWsIds] = useState<Set<string>>(() => {
+		try {
+			const raw = localStorage.getItem("inno-pinned-workspaces");
+			return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+		} catch { return new Set(); }
+	});
+	const [wsMenuId, setWsMenuId] = useState<string | null>(null);
+	const wsMenuBtnRef = useRef<HTMLButtonElement | null>(null);
+	const wsMenuRef = useRef<HTMLDivElement | null>(null);
+
+	const togglePinWorkspace = useCallback((id: string) => {
+		setPinnedWsIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) next.delete(id); else next.add(id);
+			try { localStorage.setItem("inno-pinned-workspaces", JSON.stringify([...next])); } catch { /* ignore */ }
+			return next;
+		});
+	}, []);
 	const [editingWsName, setEditingWsName] = useState("");
 	const [workspaceSort, setWorkspaceSort] = useState<WorkspaceSort>(readWorkspaceSort);
 	const [customOrder, setCustomOrder] = useState<string[]>(readWorkspaceCustomOrder);
@@ -553,8 +577,16 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 		if (archived.length > 0) {
 			result.push({ id: "archived", name: t("sidebar.archived"), activityAt: 0, manageable: false, sortable: false, canCreate: false, sessions: archived });
 		}
+		// Float pinned workspaces to the top (stable within pinned / unpinned).
+		if (pinnedWsIds.size > 0) {
+			result.sort((a, b) => {
+				const pa = pinnedWsIds.has(a.id) ? 0 : 1;
+				const pb = pinnedWsIds.has(b.id) ? 0 : 1;
+				return pa - pb;
+			});
+		}
 		return result;
-	}, [wsState.list, state.filteredSessions, state.searchQuery, simpleMode, t, workspaceSort, customOrder, isCustomSorting, customOrderDraft]);
+	}, [wsState.list, state.filteredSessions, state.searchQuery, simpleMode, t, workspaceSort, customOrder, isCustomSorting, customOrderDraft, pinnedWsIds]);
 
 	const sortableGroupIds = useMemo(() => groups.filter((group) => group.sortable).map((group) => group.id), [groups]);
 
@@ -736,6 +768,26 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 		})();
 	}, [t]);
 
+	// Workspace-header popup menu (rendered via portal). Resolved before any
+	// early-return branch so it appears regardless of sidebar mode.
+	const activeWsMenu = useMemo(() => {
+		if (!wsMenuId) return null;
+		const g = groups.find((gr) => gr.id === wsMenuId);
+		if (!g) return null;
+		return (
+			<WorkspaceMenu
+				group={g}
+				anchorRef={wsMenuBtnRef}
+				onClose={() => setWsMenuId(null)}
+				onRename={() => { setEditingWsId(g.id); setEditingWsName(g.name); setWsMenuId(null); }}
+				onTogglePin={() => togglePinWorkspace(g.id)}
+				onNewChat={() => { void newChatIn(g); setWsMenuId(null); }}
+				onDelete={() => { setWsMenuId(null); handleDeleteWorkspace(g); }}
+				pinned={pinnedWsIds.has(g.id)}
+			/>
+		);
+	}, [wsMenuId, groups, togglePinWorkspace, newChatIn, handleDeleteWorkspace, pinnedWsIds]);
+
 	/* ── Collapsed sidebar ── */
 
 	if (collapsed) {
@@ -756,6 +808,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 
 	if (simpleMode) {
 		return (
+			<>
 			<aside className="inno-sidebar-scope flex h-full min-h-0 flex-col overflow-hidden border-r border-[var(--inno-border)] bg-[var(--inno-sidebar-bg)]">
 				{/* Header: brand + collapse */}
 				<div className="flex items-center justify-between gap-2 px-3 py-2.5">
@@ -851,9 +904,6 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 											<Trash2 size={12} />
 										</button>
 									</div>
-									{session.preview && session.preview !== session.name ? (
-										<div className="inno-sidebar-meta mt-0.5 truncate text-[var(--inno-text-subtle)]">{session.preview}</div>
-									) : null}
 									<div className="mt-1 flex items-center gap-1.5">
 										{ws ? (
 											<span
@@ -909,12 +959,15 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 					</div>
 				</div>
 			</aside>
+			{activeWsMenu}
+			</>
 		);
 	}
 
 	/* ── Expanded sidebar ── */
 
 	return (
+		<>
 		<aside className="inno-sidebar-scope flex h-full min-h-0 flex-col overflow-hidden border-r border-[var(--inno-border)] bg-[var(--inno-sidebar-bg)]">
 			{/* Header */}
 			<div className="px-3 py-2.5">
@@ -1012,16 +1065,19 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 									onEditSave={() => saveWsName(group.id)}
 									onEditCancel={() => setEditingWsId(null)}
 									onDelete={() => handleDeleteWorkspace(group)}
-									reorderMode={isCustomSorting && group.sortable}
-									dragging={draggingWorkspaceId === group.id}
-									canMoveUp={customIndex > 0}
-									canMoveDown={customIndex >= 0 && customIndex < customOrderDraft.length - 1}
-									onDragStart={() => setDraggingWorkspaceId(group.id)}
-									onDragOver={() => moveDraggedWorkspaceBefore(group.id)}
-									onDragEnd={() => setDraggingWorkspaceId(null)}
-									onMoveUp={() => moveCustomWorkspace(group.id, customIndex - 1)}
-									onMoveDown={() => moveCustomWorkspace(group.id, customIndex + 1)}
-								/>
+								reorderMode={isCustomSorting && group.sortable}
+								dragging={draggingWorkspaceId === group.id}
+								canMoveUp={customIndex > 0}
+								canMoveDown={customIndex >= 0 && customIndex < customOrderDraft.length - 1}
+								onDragStart={() => setDraggingWorkspaceId(group.id)}
+								onDragOver={() => moveDraggedWorkspaceBefore(group.id)}
+								onDragEnd={() => setDraggingWorkspaceId(null)}
+								onMoveUp={() => moveCustomWorkspace(group.id, customIndex - 1)}
+								onMoveDown={() => moveCustomWorkspace(group.id, customIndex + 1)}
+								pinned={pinnedWsIds.has(group.id)}
+								onTogglePin={() => togglePinWorkspace(group.id)}
+								onOpenMenu={(el) => { wsMenuBtnRef.current = el; setWsMenuId((prev) => prev === group.id ? null : group.id); }}
+							/>
 								<AnimatePresence initial={false}>
 									{!isGroupCollapsed && (
 										<motion.div
@@ -1097,5 +1153,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 				</div>
 			</div>
 		</aside>
+		{activeWsMenu}
+		</>
 	);
 }
