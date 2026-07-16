@@ -318,7 +318,7 @@ export function normalizeConfig(config: LegacyInnoConfig): InnoConfig {
 		subagents: config.subagents,
 		memory: normalizeMemoryConfig(config.memory),
 		simpleMode: normalizeSimpleModeConfig(config.simpleMode),
-		ui: config.ui,
+		ui: { theme: "innospark" },
 		ocrApi: config.ocrApi,
 		tavily: config.tavily,
 	} as InnoConfig;
