@@ -90,6 +90,69 @@ summary:focus-visible {
 	box-shadow: var(--inno-ring);
 }
 
+/* Range slider — borderless track + #555AFF fill. Each <input type="range">
+   should set `--range-progress` (a percentage string) via inline style so the
+   WebKit track can render the filled portion via gradient. Firefox fills via
+   ::-moz-range-progress natively. */
+input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 100%;
+	height: 14px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+input[type="range"]:focus-visible {
+	box-shadow: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 8px;
+	border-radius: 999px;
+	background: linear-gradient(
+		to right,
+		#555aff 0%,
+		#555aff var(--range-progress, 50%),
+		rgba(85, 90, 255, 0.16) var(--range-progress, 50%),
+		rgba(85, 90, 255, 0.16) 100%
+	);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	margin-top: -3px;
+	width: 14px;
+	height: 14px;
+	border: none;
+	border-radius: 999px;
+	background: #555aff;
+	box-shadow: 0 1px 3px rgba(85, 90, 255, 0.32);
+}
+
+input[type="range"]::-moz-range-track {
+	height: 8px;
+	border-radius: 999px;
+	background: rgba(85, 90, 255, 0.16);
+}
+
+input[type="range"]::-moz-range-progress {
+	height: 8px;
+	border-radius: 999px;
+	background: #555aff;
+}
+
+input[type="range"]::-moz-range-thumb {
+	width: 14px;
+	height: 14px;
+	border: none;
+	border-radius: 999px;
+	background: #555aff;
+	box-shadow: 0 1px 3px rgba(85, 90, 255, 0.32);
+}
+
 #chat-input:focus-visible,
 .preset-search-input:focus-visible {
 	box-shadow: none;

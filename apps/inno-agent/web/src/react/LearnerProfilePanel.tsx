@@ -312,6 +312,7 @@ function GoalFormDialog({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
 							value={Math.round(draft.priority * 100)}
 							onChange={(e) => setDraft({ ...draft, priority: Number(e.target.value) / 100 })}
 							className="w-full"
+							style={{ "--range-progress": `${Math.round(draft.priority * 100)}%` } as React.CSSProperties}
 						/>
 					</label>
 					<label className="block text-sm">
@@ -469,6 +470,7 @@ function GoalCard({ goal }: { goal: LearningGoal }) {
 						value={Math.round(draft.priority * 100)}
 						onChange={(e) => setDraft({ ...draft, priority: Number(e.target.value) / 100 })}
 						className="w-full"
+						style={{ "--range-progress": `${Math.round(draft.priority * 100)}%` } as React.CSSProperties}
 					/>
 				</label>
 				<label className="block text-xs">
@@ -603,6 +605,7 @@ function KnowledgeRow({ state }: { state: KnowledgeState }) {
 								value={Math.round(draft.mastery * 100)}
 								onChange={(e) => setDraft({ ...draft, mastery: Number(e.target.value) / 100 })}
 								className="w-full"
+								style={{ "--range-progress": `${Math.round(draft.mastery * 100)}%` } as React.CSSProperties}
 							/>
 						</label>
 						<label className="block text-xs">
@@ -723,6 +726,7 @@ function MisconceptionRow({ item }: { item: Misconception }) {
 							setDirty(true);
 						}}
 						className="w-full"
+						style={{ "--range-progress": `${Math.round(draft.severity * 100)}%` } as React.CSSProperties}
 					/>
 				</label>
 			</div>
