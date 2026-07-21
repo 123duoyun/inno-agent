@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Archive, ChevronRight, RefreshCw, X } from "lucide-react";
+import { Archive, ChevronRight, X } from "lucide-react";
+import refreshUrl from "../ui/refresh.svg";
 import { archiveRun, getRun, listRuns } from "../../api/terminal.js";
 import { notebookStore } from "../../stores/notebook-store.js";
 import type { RunRecord } from "../../types/terminal.js";
@@ -90,7 +91,7 @@ export function RunsPanel({ sessionId, onClose }: RunsPanelProps) {
 					className="ml-auto flex h-6 w-6 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text)] disabled:opacity-40"
 					title={t("common.refresh")}
 				>
-					<RefreshCw size={12} className={loading ? "animate-spin" : ""} />
+					<img src={refreshUrl} alt="" className={loading ? "animate-spin" : ""} style={{ width: "12px", height: "12px" }} />
 				</button>
 				<button
 					onClick={onClose}

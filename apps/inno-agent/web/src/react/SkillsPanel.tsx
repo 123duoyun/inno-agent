@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps } from "react-arborist";
-import { RefreshCw, Upload, Trash2, ChevronLeft, File, FileText, FileType, Folder, FolderOpen, Globe, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Library, Download, Check, FileCode2, Search } from "lucide-react";
+import { Upload, Trash2, ChevronLeft, File, FileText, FileType, Folder, FolderOpen, Globe, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Library, Download, Check, FileCode2, Search } from "lucide-react";
+import refreshUrl from "./ui/refresh.svg";
 import { skillsStore } from "../stores/skills-store.js";
 import { skillRawUrl } from '../api/skills.js';
 import type { SkillInfo } from "../types/skills.js";
@@ -312,7 +313,7 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 						{t("common.enable", "Enable")}
 					</label>
 					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>
-						<RefreshCw size={12} />
+						<img src={refreshUrl} alt="" style={{ width: "12px", height: "12px" }} />
 					</button>
 					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-danger)] transition-colors hover:bg-[var(--inno-danger-bg)] hover:text-[var(--inno-danger)]" title={t("common.delete", "Delete")} onClick={() => { void skillsStore.remove(skill.name); onBack(); }}>
 						<Trash2 size={12} />
@@ -410,7 +411,7 @@ function SkillLibraryModal({ onClose }: { onClose: () => void }) {
 							title={t("skills.reload")}
 							onClick={() => void skillsStore.loadLibrary(true)}
 						>
-							<RefreshCw size={14} />
+							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
 						</button>
 						<button
 							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
@@ -559,7 +560,7 @@ export function SkillsPanel() {
 							<span className="hidden @[26rem]/skillspanel:inline">{t("skills.library")}</span>
 						</button>
 						<button className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.reload()}>
-							<RefreshCw size={14} />
+							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
 						</button>
 						<button className="flex h-7 items-center gap-1 rounded-md inno-primary-button px-2 text-xs text-white disabled:opacity-50" disabled={state.isUploading} title={state.isUploading ? t("skills.uploading") : t("skills.upload")} onClick={() => uploadRef.current?.click()}>
 							<Upload size={14} />

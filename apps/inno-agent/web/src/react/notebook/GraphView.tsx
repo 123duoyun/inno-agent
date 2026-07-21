@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Scan, Shuffle, RefreshCw, Network, Tag } from "lucide-react";
+import { Scan, Shuffle, Network, Tag } from "lucide-react";
+import refreshUrl from "../ui/refresh.svg";
 import { Spinner } from "../ui/Spinner.js";
 import cytoscape, { type Core, type ElementDefinition } from "cytoscape";
 import { ForceSimulation, type SimLink, type SimNode } from "./force-simulation.js";
@@ -560,7 +561,7 @@ export function GraphView() {
 					<span className="hidden @[1050px]:inline">{t("notebook.graph.relayout")}</span>
 				</button>
 				<button className="inline-flex items-center gap-1 rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2 py-1 hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={() => void notebookStore.loadGraph()} title={t("notebook.graph.refresh")}>
-					<RefreshCw size={14} />
+					<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
 					<span className="hidden @[1050px]:inline">{t("notebook.graph.refresh")}</span>
 				</button>
 				<div className="mx-1 h-4 w-px bg-[var(--inno-surface-muted)]" />

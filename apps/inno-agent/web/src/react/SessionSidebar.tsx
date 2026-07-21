@@ -6,7 +6,6 @@ import {
 	PanelLeftOpen,
 	PanelLeftClose,
 	Plus,
-	RefreshCw,
 	Sparkles,
 	Pencil,
 	Trash2,
@@ -28,6 +27,7 @@ import {
 	Pin,
 	PinOff,
 } from "lucide-react";
+import refreshUrl from "./ui/refresh.svg";
 import { appStore } from "../stores/app-store.js";
 import { chatStore } from "../stores/chat-store.js";
 import { sessionsStore } from "../stores/sessions-store.js";
@@ -1024,7 +1024,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 							title={t("common.refresh")}
 							onClick={() => void sessionsStore.load()}
 						>
-							<RefreshCw size={14} />
+							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
 						</button>
 						<button
 							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"

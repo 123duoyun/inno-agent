@@ -2,6 +2,8 @@ import { createContext, lazy, memo, Suspense, useCallback, useContext, useEffect
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
 import { RefreshCw, FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Upload, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, ListChecks, Trash2 } from "lucide-react";
+import uploadUrl from "./ui/upload.svg";
+import refreshUrl from "./ui/refresh.svg";
 import { workspaceStore, type StreamingWorkspacePreview } from "../stores/workspace-store.js";
 import { workspaceFileUrl, workspaceFolderZipUrl, triggerDownload } from "../api/workspace.js";
 import { workspacesStore } from "../stores/workspaces-store.js";
@@ -1085,10 +1087,10 @@ export function WorkspaceBrowser() {
 						<ListChecks size={14} />
 					</button>
 					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-violet-100 hover:text-violet-600 disabled:opacity-40" title={t("files.uploadSkill", "Upload skill package (.zip/.md) to .skills")} onClick={() => skillUploadRef.current?.click()}>
-						<Upload size={13} />
+						<img src={uploadUrl} alt="" style={{ width: "16px", height: "16px" }} />
 					</button>
 					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-40" title={t("preview.refresh", "Refresh")} onClick={() => void workspaceStore.loadTree()}>
-						<RefreshCw size={13} />
+						<img src={refreshUrl} alt="" style={{ width: "16px", height: "16px" }} />
 					</button>
 					<input ref={skillUploadRef} type="file" multiple accept=".zip,application/zip,.md,text/markdown" className="hidden" onChange={handleSkillUploadChange} />
 				</div>
