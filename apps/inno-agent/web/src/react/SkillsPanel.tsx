@@ -12,7 +12,7 @@ import { getLineConfigs } from "../utils/tree-lines.js";
 import { normalizeMarkdownMath } from "../utils/markdown-math.js";
 import { groupByCategory, matchesQuery } from "../utils/category-grouping.js";
 import { useStoreSnapshot } from "./hooks.js";
-import { checkboxCls } from "./ui/checkbox.js";
+import { Checkbox } from "./ui/Checkbox.js";
 import { Spinner } from "./ui/Spinner.js";
 import { LazyCodeEditor } from "./LazyCodeEditor.js";
 import { LazyMarkdownEditor } from "./LazyMarkdownEditor.js";
@@ -309,7 +309,7 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 						<span className="block max-w-[180px] truncate px-1 text-xs font-medium text-[var(--inno-text)]">{skill.name}</span>
 					</div>
 					<label className="flex shrink-0 items-center gap-1 text-[10px] text-[var(--inno-text-muted)]">
-						<input type="checkbox" className={checkboxCls} checked={skill.enabled} onChange={(e) => void skillsStore.setEnabled(skill.name, e.target.checked)} />
+						<Checkbox checked={skill.enabled} onChange={(v) => void skillsStore.setEnabled(skill.name, v)} />
 						{t("common.enable", "Enable")}
 					</label>
 					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>

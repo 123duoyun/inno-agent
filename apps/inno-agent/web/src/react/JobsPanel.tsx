@@ -5,7 +5,7 @@ import { Plus, Play, Pencil, ToggleLeft, ToggleRight, Trash2 } from "lucide-reac
 import { jobsStore } from "../stores/jobs-store.js";
 import type { CreateJobInput, ScheduledJob, TaskType } from "../types/jobs.js";
 import { useStoreSnapshot } from "./hooks.js";
-import { checkboxCls } from "./ui/checkbox.js";
+import { Checkbox } from "./ui/Checkbox.js";
 import { Spinner } from "./ui/Spinner.js";
 import { ScheduleEditor } from "./jobs/ScheduleEditor.js";
 import {
@@ -330,11 +330,9 @@ export function JobsPanel() {
 							</label>
 
 							<label className="flex items-center gap-2 text-sm text-[var(--inno-text)]">
-								<input
-									type="checkbox"
-									className={checkboxCls}
+								<Checkbox
 									checked={form.enabled}
-									onChange={(event) => setForm({ ...form, enabled: event.target.checked })}
+									onChange={(v) => setForm({ ...form, enabled: v })}
 								/>
 								{t("jobs.form.enabled")}
 							</label>
