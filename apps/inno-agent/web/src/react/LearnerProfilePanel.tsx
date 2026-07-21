@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronDown, ChevronRight } from "lucide-react";
 import { Spinner } from "./ui/Spinner.js";
 import { learnerStore } from "../stores/learner-store.js";
 import type {
@@ -17,6 +18,93 @@ import { useStoreSnapshot } from "./hooks.js";
 const GOAL_TYPES: GoalType[] = ["skill", "concept", "project", "exam", "habit"];
 const GOAL_STATUSES: GoalStatus[] = ["active", "paused", "completed", "archived"];
 const MISC_STATUSES: MisconceptionStatus[] = ["active", "repairing", "resolved", "stale"];
+
+/* ── Custom dropdown (white bg / black text / bold when selected) ── */
+
+function CustomSelect<T extends string>({
+	value,
+	options,
+	getLabel,
+	onChange,
+	className,
+}: {
+	value: T;
+	options: readonly T[];
+	getLabel: (v: T) => string;
+	onChange: (v: T) => void;
+	className?: string;
+}) {
+	const [open, setOpen] = useState(false);
+	const btnRef = useRef<HTMLButtonElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	const pos = useMemo(() => {
+		if (!open) return null;
+		const r = btnRef.current?.getBoundingClientRect();
+		if (!r) return null;
+		return { top: r.bottom + 4, left: r.left, width: r.width };
+	}, [open]);
+
+	useEffect(() => {
+		if (!open) return;
+		const onDocClick = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
+				btnRef.current && !btnRef.current.contains(e.target as Node)) {
+				setOpen(false);
+			}
+		};
+		const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+		document.addEventListener("mousedown", onDocClick);
+		document.addEventListener("keydown", onKey);
+		return () => {
+			document.removeEventListener("mousedown", onDocClick);
+			document.removeEventListener("keydown", onKey);
+		};
+	}, [open]);
+
+	const handlePick = useCallback((v: T) => {
+		onChange(v);
+		setOpen(false);
+	}, [onChange]);
+
+	return (
+		<>
+			<button
+				type="button"
+				ref={btnRef}
+				className={`relative flex w-full items-center justify-between rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] text-[var(--inno-text)] ${className ?? ""}`}
+				onClick={() => setOpen((v) => !v)}
+			>
+				<span className="truncate text-left">{getLabel(value)}</span>
+				<ChevronDown size={14} className="shrink-0 text-[var(--inno-text-muted)]" />
+			</button>
+			{pos && createPortal(
+				<div
+					ref={menuRef}
+					className="fixed z-[100] overflow-auto rounded-md border border-[var(--inno-border)] bg-white py-1 shadow-lg"
+					style={{ top: pos.top, left: pos.left, width: pos.width, maxHeight: 240 }}
+				>
+					{options.map((opt) => {
+						const selected = opt === value;
+						return (
+							<button
+								key={opt}
+								type="button"
+								style={{ fontSize: 12, fontWeight: selected ? 700 : 400 }}
+								className={`flex w-full items-center gap-1.5 px-3 py-1.5 text-left text-black transition-colors hover:bg-[var(--inno-surface-muted)]`}
+								onClick={() => handlePick(opt)}
+							>
+								{selected ? <Check size={12} className="shrink-0 text-black" /> : <span className="w-[12px] shrink-0" />}
+								{getLabel(opt)}
+							</button>
+						);
+					})}
+				</div>,
+				document.body,
+			)}
+		</>
+	);
+}
 
 function formatDate(iso?: string): string {
 	if (!iso) return "-";
@@ -277,29 +365,25 @@ function GoalFormDialog({ onClose, onSubmit }: { onClose: () => void; onSubmit: 
 					</label>
 					<div className="grid grid-cols-2 gap-2">
 						<label className="block text-sm">
-							<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("profile.goals.type")}</span>
-							<select
-								className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm"
-								value={draft.type}
-								onChange={(e) => setDraft({ ...draft, type: e.target.value as GoalType })}
-							>
-								{GOAL_TYPES.map((tp) => (
-									<option key={tp} value={tp}>{t(`profile.goals.typeOptions.${tp}`)}</option>
-								))}
-							</select>
-						</label>
-						<label className="block text-sm">
-							<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("profile.goals.status")}</span>
-							<select
-								className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm"
-								value={draft.status}
-								onChange={(e) => setDraft({ ...draft, status: e.target.value as GoalStatus })}
-							>
-								{GOAL_STATUSES.map((st) => (
-									<option key={st} value={st}>{t(`profile.goals.statusOptions.${st}`)}</option>
-								))}
-							</select>
-						</label>
+						<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("profile.goals.type")}</span>
+						<CustomSelect
+							value={draft.type}
+							options={GOAL_TYPES}
+							getLabel={(tp) => t(`profile.goals.typeOptions.${tp}`)}
+							onChange={(v) => setDraft({ ...draft, type: v })}
+							className="px-3 py-2 text-sm"
+						/>
+					</label>
+					<label className="block text-sm">
+						<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("profile.goals.status")}</span>
+						<CustomSelect
+							value={draft.status}
+							options={GOAL_STATUSES}
+							getLabel={(st) => t(`profile.goals.statusOptions.${st}`)}
+							onChange={(v) => setDraft({ ...draft, status: v })}
+							className="px-3 py-2 text-sm"
+						/>
+					</label>
 					</div>
 					<label className="block text-sm">
 						<span className="mb-1 block font-medium text-[var(--inno-text)]">
@@ -433,33 +517,25 @@ function GoalCard({ goal }: { goal: LearningGoal }) {
 				/>
 				<div className="grid grid-cols-2 gap-2">
 					<label className="block text-xs">
-						<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.goals.type")}</span>
-						<select
-							className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2 py-1.5 text-sm"
-							value={draft.type}
-							onChange={(e) => setDraft({ ...draft, type: e.target.value as GoalType })}
-						>
-							{GOAL_TYPES.map((tp) => (
-								<option key={tp} value={tp}>
-									{t(`profile.goals.typeOptions.${tp}`)}
-								</option>
-							))}
-						</select>
-					</label>
-					<label className="block text-xs">
-						<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.goals.status")}</span>
-						<select
-							className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2 py-1.5 text-sm"
-							value={draft.status}
-							onChange={(e) => setDraft({ ...draft, status: e.target.value as GoalStatus })}
-						>
-							{GOAL_STATUSES.map((st) => (
-								<option key={st} value={st}>
-									{t(`profile.goals.statusOptions.${st}`)}
-								</option>
-							))}
-						</select>
-					</label>
+					<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.goals.type")}</span>
+					<CustomSelect
+						value={draft.type}
+						options={GOAL_TYPES}
+						getLabel={(tp) => t(`profile.goals.typeOptions.${tp}`)}
+						onChange={(v) => setDraft({ ...draft, type: v })}
+						className="px-2 py-1.5 text-sm"
+					/>
+				</label>
+				<label className="block text-xs">
+					<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.goals.status")}</span>
+					<CustomSelect
+						value={draft.status}
+						options={GOAL_STATUSES}
+						getLabel={(st) => t(`profile.goals.statusOptions.${st}`)}
+						onChange={(v) => setDraft({ ...draft, status: v })}
+						className="px-2 py-1.5 text-sm"
+					/>
+				</label>
 				</div>
 				<label className="block text-xs">
 					<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.goals.priority")}: {(draft.priority * 100).toFixed(0)}%</span>
@@ -698,22 +774,18 @@ function MisconceptionRow({ item }: { item: Misconception }) {
 			<div className="mb-2 text-xs text-[var(--inno-text-muted)]">{item.concept_id} · {formatDate(item.last_seen_at)}</div>
 			<div className="grid grid-cols-2 gap-2">
 				<label className="block text-xs">
-					<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.misconceptions.status")}</span>
-					<select
-						className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2 py-1.5 text-sm"
-						value={draft.status}
-						onChange={(e) => {
-							setDraft({ ...draft, status: e.target.value as MisconceptionStatus });
-							setDirty(true);
-						}}
-					>
-						{MISC_STATUSES.map((s) => (
-							<option key={s} value={s}>
-							{t(`profile.misconceptions.statusOptions.${s}`)}
-							</option>
-						))}
-					</select>
-				</label>
+				<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.misconceptions.status")}</span>
+				<CustomSelect
+					value={draft.status}
+					options={MISC_STATUSES}
+					getLabel={(s) => t(`profile.misconceptions.statusOptions.${s}`)}
+					onChange={(v) => {
+						setDraft({ ...draft, status: v });
+						setDirty(true);
+					}}
+					className="px-2 py-1.5 text-sm"
+				/>
+			</label>
 				<label className="block text-xs">
 					<span className="mb-0.5 block text-[var(--inno-text-muted)]">{t("profile.misconceptions.severity")}: {Math.round(draft.severity * 100)}%</span>
 					<input
