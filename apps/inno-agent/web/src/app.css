@@ -171,7 +171,7 @@ inno-app-shell {
 }
 
 .app-layout {
-	--sidebar-w: 350px;
+	--sidebar-w: var(--inno-sidebar-width, 330px);
 	--workspace-w: clamp(320px, var(--inno-workspace-width), 920px);
 	position: relative;
 	height: 100vh;
@@ -262,6 +262,7 @@ inno-app-shell {
 }
 
 /* Disable transitions while the user is dragging the resize handle */
+.workspace-resizing .app-layout > :nth-child(1),
 .workspace-resizing .app-layout > :nth-child(2),
 .workspace-resizing .app-layout > :nth-child(3) {
 	transition: none;
@@ -721,6 +722,16 @@ inno-workspace-panel textarea {
 .workspace-resizing {
 	cursor: col-resize;
 	user-select: none;
+}
+
+/* Mirrored handle for the left sidebar's right edge */
+.workspace-resize-handle.is-end {
+	left: auto;
+	right: -4px;
+}
+
+.workspace-resize-handle.is-end::after {
+	left: 4px;
 }
 
 /* Session cards: completely disable focus outlines */

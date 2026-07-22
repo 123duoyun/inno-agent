@@ -609,6 +609,7 @@
 	"sidebar": {
 		"expand": "展开",
 		"collapse": "折叠",
+		"resize": "拖动以调整宽度",
 		"loadWorkspace": "加载此工作区到预览面板",
 		"newChatInWorkspace": "新对话",
 		"renameWorkspace": "重命名",

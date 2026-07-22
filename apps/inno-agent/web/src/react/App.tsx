@@ -29,6 +29,7 @@ export function App() {
 	const app = useStoreSnapshot(appStore, () => ({
 		rightPanelTab: appStore.rightPanelTab,
 		sidebarCollapsed: appStore.sidebarCollapsed,
+		sidebarWidth: appStore.sidebarWidth,
 		workspaceMode: appStore.workspaceMode,
 		workspaceWidth: appStore.workspaceWidth,
 	}));
@@ -97,6 +98,7 @@ export function App() {
 	}, []);
 
 	const setTab = useCallback((tab: RightPanelTab) => appStore.setRightPanelTab(tab), []);
+	const setSidebarWidth = useCallback((width: number) => appStore.setSidebarWidth(width), []);
 	const setWorkspaceMode = useCallback((mode: WorkspaceMode) => {
 		userExpandedWorkspace.current = mode !== "collapsed";
 		appStore.setWorkspaceMode(mode);
@@ -107,9 +109,9 @@ export function App() {
 		<>
 			<div
 				className={`app-layout app-layout--sidebar-${app.sidebarCollapsed ? "collapsed" : "expanded"} app-layout--workspace-${app.workspaceMode}`}
-				style={{ "--inno-workspace-width": `${app.workspaceWidth}px` } as React.CSSProperties}
+				style={{ "--inno-sidebar-width": `${app.sidebarWidth}px`, "--inno-workspace-width": `${app.workspaceWidth}px` } as React.CSSProperties}
 			>
-				<SessionSidebar collapsed={app.sidebarCollapsed} />
+				<SessionSidebar collapsed={app.sidebarCollapsed} width={app.sidebarWidth} onWidthChange={setSidebarWidth} />
 				<ChatCenter />
 				<WorkspacePanel
 					activeTab={app.rightPanelTab}

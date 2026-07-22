@@ -20,6 +20,7 @@ class AppStoreImpl extends EventEmitter<AppStoreEvents> {
 	rightPanelTab: RightPanelTab = getInitialRightPanelTab();
 	sidebarSection: SidebarSection = "chat";
 	sidebarCollapsed = false;
+	sidebarWidth = getInitialSidebarWidth();
 	workspaceMode: WorkspaceMode = "collapsed";
 	workspaceWidth = getInitialWorkspaceWidth();
 	settingsOpen = getInitialSettingsOpen();
@@ -64,6 +65,16 @@ class AppStoreImpl extends EventEmitter<AppStoreEvents> {
 		this.emit("change", undefined);
 	}
 
+	setSidebarWidth(width: number) {
+		const next = Math.max(280, Math.min(520, Math.round(width)));
+		if (this.sidebarWidth === next) return;
+		this.sidebarWidth = next;
+		if (typeof window !== "undefined") {
+			window.localStorage.setItem("inno.sidebarWidth", String(this.sidebarWidth));
+		}
+		this.emit("change", undefined);
+	}
+
 	setWorkspaceMode(mode: WorkspaceMode) {
 		if (this.workspaceMode === mode) return;
 		this.workspaceMode = mode;
@@ -90,6 +101,12 @@ function getInitialWorkspaceWidth(): number {
 	if (typeof window === "undefined") return 520;
 	const saved = Number(window.localStorage.getItem("inno.workspaceWidth"));
 	return Number.isFinite(saved) && saved > 0 ? Math.max(320, Math.min(920, Math.round(saved))) : 520;
+}
+
+function getInitialSidebarWidth(): number {
+	if (typeof window === "undefined") return 330;
+	const saved = Number(window.localStorage.getItem("inno.sidebarWidth"));
+	return Number.isFinite(saved) && saved > 0 ? Math.max(280, Math.min(520, Math.round(saved))) : 330;
 }
 
 function getInitialRightPanelTab(): RightPanelTab {

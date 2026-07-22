@@ -16,8 +16,8 @@ export function ModeSwitch({ simpleMode }: ModeSwitchProps) {
 		<div className="relative px-2">
 			{/* Pill - 点击切换展开/收起 */}
 			<div
-				className="relative mx-auto cursor-pointer rounded-full"
-				style={{ width: "310px", height: "44px", background: "rgba(227, 231, 255, 0.6)" }}
+				className="relative w-full cursor-pointer rounded-xl"
+				style={{ height: "44px", background: "rgba(227, 231, 255, 0.6)" }}
 				onClick={() => setShowCard(!showCard)}
 			>
 				<div
@@ -39,7 +39,7 @@ export function ModeSwitch({ simpleMode }: ModeSwitchProps) {
 					<div
 						className="absolute z-50 left-1/2 -translate-x-1/2 top-full overflow-hidden rounded-2xl"
 						style={{
-							width: "310px",
+							width: "100%",
 							height: "108px",
 							background: "rgba(255,255,255,0.8)",
 							backdropFilter: "blur(5px)",
@@ -109,13 +109,13 @@ export function ModeSwitch({ simpleMode }: ModeSwitchProps) {
 						{/* 点击区域 - 上半切换到 Chat */}
 						<div
 							className="absolute z-10 cursor-pointer"
-							style={{ left: 0, top: 0, width: "310px", height: "54px" }}
+							style={{ left: 0, top: 0, right: 0, height: "54px" }}
 							onClick={() => { setShowCard(false); if (!simpleMode) void settingsStore.saveSimpleMode(true); }}
 						/>
 						{/* 点击区域 - 下半切换到 Agent */}
 						<div
 							className="absolute z-10 cursor-pointer"
-							style={{ left: 0, top: "54px", width: "310px", height: "54px" }}
+							style={{ left: 0, top: "54px", right: 0, height: "54px" }}
 							onClick={() => { setShowCard(false); if (simpleMode) void settingsStore.saveSimpleMode(false); }}
 						/>
 					</div>

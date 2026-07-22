@@ -609,6 +609,7 @@
 	"sidebar": {
 		"expand": "Expand",
 		"collapse": "Collapse",
+		"resize": "Drag to resize",
 		"loadWorkspace": "Load this workspace into the preview panel",
 		"newChatInWorkspace": "New chat",
 		"renameWorkspace": "Rename",
