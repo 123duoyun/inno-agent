@@ -350,6 +350,7 @@ function SessionCard({
 	onArchive,
 	onDelete,
 	onExport,
+	onOpenMenu,
 }: {
 	session: SessionMeta;
 	active: boolean;
@@ -366,6 +367,7 @@ function SessionCard({
 	onArchive: () => void;
 	onDelete: () => void;
 	onExport: () => void;
+	onOpenMenu: (btn: HTMLButtonElement) => void;
 }) {
 	const { t } = useTranslation();
 	return (
@@ -407,9 +409,85 @@ function SessionCard({
 						{session.name}
 					</div>
 				)}
-				<span className="inno-sidebar-meta shrink-0 pt-0.5 tabular-nums text-[var(--inno-text-subtle)]">{formatTime(session.updatedAt)}</span>
+				<button
+				className="inno-sidebar-meta relative flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 tabular-nums text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)]"
+				title={t("sidebar.sessionMenu")}
+				onClick={(e) => { e.stopPropagation(); onOpenMenu(e.currentTarget); }}
+			>
+				<span aria-hidden className="group-hover/card:hidden">{formatTime(session.updatedAt)}</span>
+				<span aria-hidden className="hidden group-hover/card:inline">…</span>
+			</button>
 			</div>
 		</div>
+	);
+}
+
+/* ── Session card popup menu ── */
+
+interface SessionMenuProps {
+	session: SessionMeta;
+	anchorRef: React.RefObject<HTMLButtonElement | null>;
+	onClose: () => void;
+	onRename: () => void;
+	onGenerate: () => void;
+	onArchive: () => void;
+	onExport: () => void;
+	onDelete: () => void;
+}
+
+function SessionMenu({ session, anchorRef, onClose, onRename, onGenerate, onArchive, onExport, onDelete }: SessionMenuProps) {
+	const { t } = useTranslation();
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const onDocClick = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
+		};
+		const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+		document.addEventListener("mousedown", onDocClick);
+		document.addEventListener("keydown", onKey);
+		return () => {
+			document.removeEventListener("mousedown", onDocClick);
+			document.removeEventListener("keydown", onKey);
+		};
+	}, [onClose]);
+
+	const pos = useMemo(() => {
+		const r = anchorRef.current?.getBoundingClientRect();
+		if (!r) return null;
+		return { top: r.bottom + 4, left: Math.min(r.right, window.innerWidth - 160) };
+	}, [anchorRef]);
+
+	if (!pos) return null;
+
+	const menuItems: Array<{ icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean; show: boolean }> = [
+		{ icon: <Pencil size={12} />, label: t("sidebar.rename"), onClick: () => { onRename(); onClose(); }, show: true },
+		{ icon: <Sparkles size={12} />, label: t("sidebar.generateTopic"), onClick: () => { onGenerate(); onClose(); }, show: true },
+		{ icon: session.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />, label: session.archived ? t("sidebar.unarchive") : t("sidebar.archive"), onClick: () => { onArchive(); onClose(); }, show: true },
+		{ icon: <Download size={12} />, label: t("sessions.export"), onClick: () => { onExport(); onClose(); }, show: true },
+		{ icon: <Trash2 size={12} />, label: t("sidebar.deleteConversation"), onClick: () => { onDelete(); onClose(); }, danger: true, show: true },
+	];
+	const visible = menuItems.filter((m) => m.show);
+
+	return createPortal(
+		<div
+			ref={menuRef}
+			className="fixed z-[100] whitespace-nowrap rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] py-1 shadow-lg"
+			style={{ top: pos.top, left: pos.left, transform: "translateX(-100%)" }}
+		>
+			{visible.map((item) => (
+				<button
+					key={item.label}
+					className={`flex w-full items-center gap-2 pl-2 pr-8 py-1 text-left leading-tight transition-colors hover:bg-[var(--inno-surface-muted)] ${item.danger ? "text-[var(--inno-danger)]" : "text-[var(--inno-text)]"}`}
+					style={{ fontSize: "11px" }}
+					onClick={item.onClick}
+				>
+					{item.icon}
+					<span>{item.label}</span>
+				</button>
+			))}
+		</div>,
+		document.body,
 	);
 }
 
@@ -433,6 +511,8 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 	const [wsMenuId, setWsMenuId] = useState<string | null>(null);
 	const wsMenuBtnRef = useRef<HTMLButtonElement | null>(null);
 	const wsMenuRef = useRef<HTMLDivElement | null>(null);
+	const [sessionMenuId, setSessionMenuId] = useState<string | null>(null);
+	const sessionMenuBtnRef = useRef<HTMLButtonElement | null>(null);
 
 	const togglePinWorkspace = useCallback((id: string) => {
 		setPinnedWsIds((prev) => {
@@ -789,6 +869,25 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 		);
 	}, [wsMenuId, groups, togglePinWorkspace, newChatIn, handleDeleteWorkspace, pinnedWsIds]);
 
+	// Session-card popup menu (rendered via portal).
+	const activeSessionMenu = useMemo(() => {
+		if (!sessionMenuId) return null;
+		const s = state.sessions.find((ss) => ss.id === sessionMenuId);
+		if (!s) return null;
+		return (
+			<SessionMenu
+				session={s}
+				anchorRef={sessionMenuBtnRef}
+				onClose={() => setSessionMenuId(null)}
+				onRename={() => { setEditingId(s.id); setEditingName(s.name); }}
+				onGenerate={() => generateName(s)}
+				onArchive={() => handleArchive(s)}
+				onExport={() => handleExport(s)}
+				onDelete={() => handleDelete(s)}
+			/>
+		);
+	}, [sessionMenuId, state.sessions, generateName, handleArchive, handleExport, handleDelete]);
+
 	/* ── Collapsed sidebar ── */
 
 	if (collapsed) {
@@ -963,6 +1062,7 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 				</div>
 			</aside>
 			{activeWsMenu}
+			{activeSessionMenu}
 			</>
 		);
 	}
@@ -1122,7 +1222,8 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 													onArchive={() => handleArchive(session)}
 													onDelete={() => handleDelete(session)}
 													onExport={() => handleExport(session)}
-												/>
+												onOpenMenu={(el) => { sessionMenuBtnRef.current = el; setSessionMenuId((prev) => prev === session.id ? null : session.id); }}
+											/>
 											))}
 										</motion.div>
 									)}
@@ -1170,7 +1271,8 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 				</div>
 			</div>
 		</aside>
-		{activeWsMenu}
-		</>
+	{activeWsMenu}
+	{activeSessionMenu}
+	</>
 	);
 }

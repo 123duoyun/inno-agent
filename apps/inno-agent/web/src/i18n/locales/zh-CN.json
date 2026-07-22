@@ -616,6 +616,7 @@
 		"pinWorkspace": "置顶",
 		"unpinWorkspace": "取消置顶",
 		"workspaceMenu": "工作区操作",
+		"sessionMenu": "对话操作",
 		"originChannel": "来源：{{channel}}",
 		"interactedChannel": "交互过：{{channel}}",
 		"generateTopic": "AI 生成标题",

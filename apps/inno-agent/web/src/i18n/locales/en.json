@@ -616,6 +616,7 @@
 		"pinWorkspace": "Pin",
 		"unpinWorkspace": "Unpin",
 		"workspaceMenu": "Workspace actions",
+		"sessionMenu": "Session actions",
 		"originChannel": "Origin: {{channel}}",
 		"interactedChannel": "Interacted: {{channel}}",
 		"generateTopic": "AI generate topic",
