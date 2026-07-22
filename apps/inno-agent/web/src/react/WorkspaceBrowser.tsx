@@ -857,6 +857,9 @@ export function WorkspaceBrowser() {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [multiSelectMode, setMultiSelectMode] = useState(false);
 	const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
+	const [sidebarWidth, setSidebarWidth] = useState(TREE_PANE_WIDTH);
+	const [isResizing, setIsResizing] = useState(false);
+	const resizeStartRef = useRef({ x: 0, width: 0 });
 
 	const state = useStoreSnapshot(workspaceStore, () => ({
 		tree: workspaceStore.tree,
@@ -1062,8 +1065,39 @@ export function WorkspaceBrowser() {
 	/* --- Toolbar button helpers --- */
 	const busy = state.isMutating || state.isLoadingTree;
 
+	const startResize = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		resizeStartRef.current = { x: event.clientX, width: sidebarWidth };
+		setIsResizing(true);
+	}, [sidebarWidth]);
+
+	useEffect(() => {
+		if (!isResizing) return;
+		const handlePointerMove = (event: PointerEvent) => {
+			const dx = event.clientX - resizeStartRef.current.x;
+			setSidebarWidth(Math.max(180, Math.min(600, resizeStartRef.current.width + dx)));
+		};
+		const handlePointerUp = () => setIsResizing(false);
+		document.body.classList.add("workspace-resizing");
+		window.addEventListener("pointermove", handlePointerMove);
+		window.addEventListener("pointerup", handlePointerUp, { once: true });
+		return () => {
+			document.body.classList.remove("workspace-resizing");
+			window.removeEventListener("pointermove", handlePointerMove);
+			window.removeEventListener("pointerup", handlePointerUp);
+		};
+	}, [isResizing]);
+
+	const gridTemplate = showContent
+		? (sidebarOpen ? `${sidebarWidth}px minmax(0,1fr)` : "0px minmax(0,1fr)")
+		: "minmax(0,1fr)";
+
 	return (
-		<div ref={rootRef} className={`grid h-full min-h-0 gap-0 bg-transparent p-0 transition-[grid-template-columns] duration-200 ${showContent ? (sidebarOpen ? "grid-cols-[260px_minmax(0,1fr)]" : "grid-cols-[0px_minmax(0,1fr)]") : "grid-cols-[minmax(0,1fr)]"}`}>
+		<div
+			ref={rootRef}
+			className="relative grid h-full min-h-0 gap-0 bg-transparent p-0"
+			style={{ gridTemplateColumns: gridTemplate, transition: isResizing ? "none" : "grid-template-columns 200ms" }}
+		>
 			{/* --- Tree pane --- */}
 			<aside
 				className={`relative flex min-h-0 flex-col overflow-hidden border-r border-[var(--inno-border)] transition-opacity duration-200 ${isDragOver ? "border-l border-t border-b border-[var(--inno-border)] bg-[var(--inno-accent-soft)]" : ""} ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
@@ -1173,6 +1207,18 @@ export function WorkspaceBrowser() {
 					</div>
 				)}
 			</aside>
+
+			{/* --- Resize handle (overlay, mimics WorkspacePanel) --- */}
+			{showContent && sidebarOpen && (
+				<button
+					className="workspace-resize-handle"
+					style={{ left: `${sidebarWidth - 4}px` }}
+					aria-label={t("common.resize", "拖动调整宽度") ?? ""}
+					title={`${t("common.resize", "拖动调整宽度")} (${Math.round(sidebarWidth)}px)`}
+					onPointerDown={startResize}
+					onDoubleClick={() => setSidebarWidth(TREE_PANE_WIDTH)}
+				/>
+			)}
 
 			{/* --- Preview / Edit pane --- */}
 			{showContent ? (
