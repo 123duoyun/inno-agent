@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 import { Spinner } from "./ui/Spinner.js";
+import emptyStateUrl from "./ui/Empty-State.svg";
 import { learnerStore } from "../stores/learner-store.js";
 import type {
 	GoalStatus,
@@ -299,7 +300,10 @@ function GoalsSection() {
 			>
 				{error ? <div className="mb-2 rounded bg-[var(--inno-danger-bg)] p-2 text-xs text-[var(--inno-danger)]">{error}</div> : null}
 				{goals.length === 0 ? (
-					<p className="text-sm text-[var(--inno-text-muted)]">{t("profile.goals.empty")}</p>
+					<div className="flex flex-col items-center justify-center py-6 text-center text-sm text-[var(--inno-text-muted)]">
+						<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+						<p>{t("profile.goals.empty")}</p>
+					</div>
 				) : (
 					<div className="flex flex-col gap-3">
 						{goals.map((g) => (
@@ -601,7 +605,10 @@ function KnowledgeSection() {
 	if (knowledge.length === 0) {
 		return (
 			<Section title={t("profile.sections.knowledge")} count={0}>
-				<p className="text-sm text-[var(--inno-text-muted)]">{t("profile.knowledge.empty")}</p>
+				<div className="flex flex-col items-center justify-center py-6 text-center text-sm text-[var(--inno-text-muted)]">
+					<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+					<p>{t("profile.knowledge.empty")}</p>
+				</div>
 			</Section>
 		);
 	}
@@ -725,7 +732,10 @@ function MisconceptionsSection() {
 	if (items.length === 0) {
 		return (
 			<Section title={t("profile.sections.misconceptions")} count={0}>
-				<p className="text-sm text-[var(--inno-text-muted)]">{t("profile.misconceptions.empty")}</p>
+				<div className="flex flex-col items-center justify-center py-6 text-center text-sm text-[var(--inno-text-muted)]">
+					<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+					<p>{t("profile.misconceptions.empty")}</p>
+				</div>
 			</Section>
 		);
 	}

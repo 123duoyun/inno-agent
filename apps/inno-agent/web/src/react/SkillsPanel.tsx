@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps } from "react-arborist";
 import { Upload, Trash2, ChevronLeft, File, FileText, FileType, Folder, FolderOpen, Globe, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Library, Download, Check, FileCode2, Search } from "lucide-react";
 import refreshUrl from "./ui/refresh.svg";
+import emptyStateUrl from "./ui/Empty-State.svg";
 import { skillsStore } from "../stores/skills-store.js";
 import { skillRawUrl } from '../api/skills.js';
 import type { SkillInfo } from "../types/skills.js";
@@ -257,7 +258,10 @@ function SkillFilePane({ skillName, onToggleSidebar, sidebarOpen }: { skillName:
 			</div>
 			<div className="workspace-scroll min-h-0 flex-1 overflow-auto">
 				{state.file ? <FilePreview file={state.file} skillName={skillName} isLoading={state.isLoadingFile} /> : (
-					<div className="flex h-full items-center justify-center text-sm text-[var(--inno-text-muted)]">{t("preview.noPreview", "Nothing to preview")}</div>
+					<div className="flex h-full flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
+						<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+						{t("preview.noPreview", "Nothing to preview")}
+					</div>
 				)}
 			</div>
 		</div>
@@ -454,6 +458,7 @@ function SkillLibraryModal({ onClose }: { onClose: () => void }) {
 						</div>
 					) : state.library.length === 0 ? (
 						<div className="flex h-full flex-col items-center justify-center py-12 text-center text-sm text-[var(--inno-text-muted)]">
+							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 							{t("skills.libraryEmpty")}
 						</div>
 					) : totalMatched === 0 ? (
@@ -603,6 +608,7 @@ export function SkillsPanel() {
 						</div>
 					) : state.skills.length === 0 ? (
 						<div className="flex h-full flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
+							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 							<div className="text-base font-medium text-[var(--inno-text)]">{t("skills.empty")}</div>
 							<p className="mt-1 max-w-sm text-xs">{t("skills.emptyDesc")}</p>
 						</div>

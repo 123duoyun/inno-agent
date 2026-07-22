@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Paperclip, X, Square, RotateCcw, Image, AlertTriangle, Search, Folder, FolderOpen, FolderPlus, Zap, Check, ArrowUp, FileCode2, Sparkles } from "lucide-react";
 import { Spinner } from "./ui/Spinner.js";
+import emptyStateUrl from "./ui/Empty-State.svg";
 import type { ChatMessage, ChatToolRecord } from "../types/chat.js";
 import type { InlineImage } from "../api/chat.js";
 import { chatStore } from "../stores/chat-store.js";
@@ -1432,18 +1433,18 @@ export function ChatCenter() {
 							onClick={() => setShowNewWsDialog(false)}
 						/>
 						<motion.div
-							className="fixed left-1/2 top-1/2 z-[101] w-80 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[var(--inno-border)] bg-[var(--inno-surface)] p-6 shadow-xl"
+							className="fixed left-1/2 top-1/2 z-[101] h-[288px] w-[544px] -translate-x-1/2 -translate-y-1/2 rounded-[12px] border border-[var(--inno-border)] bg-[var(--inno-surface)] px-10 py-6 shadow-xl"
 							initial={{ opacity: 0, scale: 0.95, y: 8 }}
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.95, y: 8 }}
 							transition={{ duration: 0.2, ease: "easeOut" }}
 						>
-							<div className="mb-0.5 text-lg font-medium text-[var(--inno-text)]">新建工作区</div>
-							<div className="mb-5 text-xs text-[var(--inno-text-muted)]">建议简短易于识别</div>
+							<div className="mb-2 text-[20px] font-medium text-[var(--inno-text)]">新建工作区</div>
+							<div className="mb-5 text-[14px] text-[var(--inno-text-muted)]">建议简短易于识别</div>
 							<input
 								type="text"
 								autoFocus
-								placeholder="请输入工作区名称"
+								placeholder="请输入工作区名称..."
 								value={wsName}
 								onChange={(e) => setWsName(e.target.value)}
 								onKeyDown={(e) => {
@@ -1451,17 +1452,17 @@ export function ChatCenter() {
 										setShowNewWsDialog(false);
 									}
 								}}
-								className="mt-2 mb-4 w-full rounded border border-[var(--inno-border)] bg-white px-2 py-0.5 text-[10px] outline-none focus-visible:border-[var(--inno-focus-border)] focus-visible:shadow-[var(--inno-ring)]"
+								className="mt-2 mb-4 w-full rounded border border-[var(--inno-border)] bg-white px-3 py-1.5 text-[16px] outline-none focus-visible:border-[var(--inno-focus-border)] focus-visible:shadow-[var(--inno-ring)]"
 							/>
-							<div className="flex justify-end gap-1.5">
+							<div className="mt-10.5 flex justify-end gap-4">
 								<button
-									className="rounded-lg border border-[var(--inno-border)] px-1.5 py-px text-[9px] text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)]"
+									className="h-9 w-[68px] rounded-lg bg-[#EDEEFF] text-[14px] font-bold text-[#555AFF] hover:bg-[var(--inno-surface-muted)]"
 									onClick={() => setShowNewWsDialog(false)}
 								>
-									返回
+									取消
 								</button>
 								<button
-									className="rounded-lg bg-[var(--inno-accent)] px-1.5 py-px text-[9px] text-white disabled:opacity-40"
+									className="h-9 w-[68px] rounded-lg bg-[var(--inno-accent)] text-[14px] font-bold text-white disabled:opacity-40"
 									disabled={!wsName.trim()}
 									onClick={async () => {
 										const trimmed = wsName.trim();
@@ -1477,7 +1478,7 @@ export function ChatCenter() {
 										}
 									}}
 								>
-									确认
+									保存
 								</button>
 							</div>
 						</motion.div>
@@ -1512,9 +1513,7 @@ export function ChatCenter() {
 
 					{!chat.isLoadingHistory && chat.messages.length === 0 && !chat.isSending ? (
 						<div className="flex flex-col items-center justify-center pt-20 text-center text-[var(--inno-text-muted)]">
-							<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--inno-surface-muted)] text-[var(--inno-text-subtle)]">
-								<Sparkles size={18} />
-							</div>
+							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 							<p className="text-sm font-medium text-[var(--inno-text)]">{t("chat.emptySessionTitle")}</p>
 							<p className="mt-1 text-xs">{t("chat.emptySessionHint")}</p>
 						</div>

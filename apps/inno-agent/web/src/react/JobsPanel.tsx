@@ -7,6 +7,7 @@ import type { CreateJobInput, ScheduledJob, TaskType } from "../types/jobs.js";
 import { useStoreSnapshot } from "./hooks.js";
 import { Checkbox } from "./ui/Checkbox.js";
 import { Spinner } from "./ui/Spinner.js";
+import emptyStateUrl from "./ui/Empty-State.svg";
 import { ScheduleEditor } from "./jobs/ScheduleEditor.js";
 import {
 	DEFAULT_SCHEDULE,
@@ -187,7 +188,10 @@ export function JobsPanel() {
 						</div>
 					) : null}
 					{!state.isLoading && state.jobs.length === 0 ? (
-						<p className="py-8 text-center text-sm text-[var(--inno-text-muted)]">{t("jobs.empty")}</p>
+						<div className="flex flex-col items-center justify-center py-8 text-center text-sm text-[var(--inno-text-muted)]">
+							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
+							<p>{t("jobs.empty")}</p>
+						</div>
 					) : null}
 					<div className="flex flex-col gap-2">
 						{state.jobs.map((job) => {

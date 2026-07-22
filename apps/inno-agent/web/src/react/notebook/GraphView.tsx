@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Scan, Shuffle, Network, Tag } from "lucide-react";
 import refreshUrl from "../ui/refresh.svg";
+import emptyStateUrl from "../ui/Empty-State.svg";
 import { Spinner } from "../ui/Spinner.js";
 import cytoscape, { type Core, type ElementDefinition } from "cytoscape";
 import { ForceSimulation, type SimLink, type SimNode } from "./force-simulation.js";
@@ -660,7 +661,8 @@ export function GraphView() {
 				</div>
 			) : null}
 			{!state.isLoading && state.nodes.length === 0 ? (
-				<div className="absolute inset-0 flex items-center justify-center text-sm text-[var(--inno-text-muted)]">
+				<div className="absolute inset-0 flex flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
+					<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 					{t("notebook.graph.empty")}
 				</div>
 			) : null}

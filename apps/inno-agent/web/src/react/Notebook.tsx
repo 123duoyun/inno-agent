@@ -6,6 +6,7 @@ import type { WikiPageType } from "../types/wiki.js";
 import { useStoreSnapshot } from "./hooks.js";
 import { GraphView } from "./notebook/GraphView.js";
 import { PageView } from "./notebook/PageView.js";
+import emptyStateUrl from "./ui/Empty-State.svg";
 
 const FILTER_TYPES: (WikiPageType | "all")[] = ["all", "source-summary", "entity", "concept", "analysis"];
 
@@ -100,7 +101,10 @@ export function Notebook() {
 				</div>
 				<div className="min-h-0 flex-1 overflow-y-auto">
 					{state.pages.length === 0 ? (
-						<p className="p-4 text-center text-sm text-[var(--inno-text-muted)]">{t("notebook.noPages")}</p>
+						<div className="flex flex-col items-center justify-center px-4 py-8 text-center text-sm text-[var(--inno-text-muted)]">
+							<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+							<p>{t("notebook.noPages")}</p>
+						</div>
 					) : null}
 					{state.pages.map((page) => {
 						const selected = state.currentPagePath === page.path || state.selectedNodeId === page.path;

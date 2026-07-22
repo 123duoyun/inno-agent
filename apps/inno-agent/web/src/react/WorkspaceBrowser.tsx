@@ -4,6 +4,7 @@ import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHa
 import { RefreshCw, FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Upload, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, ListChecks, Trash2 } from "lucide-react";
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
+import emptyStateUrl from "./ui/Empty-State.svg";
 import { workspaceStore, type StreamingWorkspacePreview } from "../stores/workspace-store.js";
 import { workspaceFileUrl, workspaceFolderZipUrl, triggerDownload } from "../api/workspace.js";
 import { workspacesStore } from "../stores/workspaces-store.js";
@@ -592,7 +593,12 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 			<div className="workspace-scroll min-h-0 flex-1 overflow-auto">
 				{state.error ? <div className="p-4 text-sm text-red-500">{state.error}</div> : null}
 				{!state.error && state.file ? <Preview file={state.file} isLoading={state.isLoadingFile} /> : null}
-				{!state.error && !state.file ? <div className="flex h-full items-center justify-center text-sm text-[var(--inno-text-muted)]">{t("preview.noPreview", "Nothing to preview")}</div> : null}
+				{!state.error && !state.file ? (
+					<div className="flex h-full flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
+						<img src={emptyStateUrl} alt="" className="mb-3 h-28 w-32 select-none" draggable={false} />
+						{t("preview.noPreview", "Nothing to preview")}
+					</div>
+				) : null}
 			</div>
 		</div>
 	);
@@ -1151,7 +1157,8 @@ export function WorkspaceBrowser() {
 								</Tree>
 							</WorkspaceMultiSelectContext.Provider>
 							{!arboristData.length && (
-								<div className="pointer-events-none absolute left-0 top-0 p-3 text-xs text-[var(--inno-text-muted)]">
+								<div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
+									<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 									{t("preview.empty", "Empty workspace")}
 								</div>
 							)}
