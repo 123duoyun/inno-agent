@@ -17,6 +17,7 @@ import { Checkbox } from "./ui/Checkbox.js";
 import { Spinner } from "./ui/Spinner.js";
 import { LazyCodeEditor } from "./LazyCodeEditor.js";
 import { LazyMarkdownEditor } from "./LazyMarkdownEditor.js";
+import loadingGif from "./ui/loading.gif";
 import "@earendil-works/pi-web-ui";
 
 /* ---------- helpers (same as WorkspaceBrowser) ---------- */
@@ -450,13 +451,13 @@ function SkillLibraryModal({ onClose }: { onClose: () => void }) {
 				{state.error ? <div className="border-b border-[var(--inno-border)] bg-[var(--inno-danger-bg)] px-4 py-2 text-xs text-[var(--inno-danger)]">{state.error}</div> : null}
 
 				{/* Body */}
-				<div className="min-h-0 flex-1 overflow-y-auto">
-					{state.isLoading ? (
-						<div className="flex items-center justify-center py-12 text-[var(--inno-text-muted)]">
-							<Spinner size={16} className="mr-2" />
-							{t("common.loading")}
-						</div>
-					) : state.library.length === 0 ? (
+			<div className="min-h-0 flex-1 overflow-y-auto">
+				{state.isLoading ? (
+					<div className="flex flex-col items-center justify-center py-12 text-[var(--inno-text-muted)]">
+						<img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} />
+						{t("common.loading")}
+					</div>
+				) : state.library.length === 0 ? (
 						<div className="flex h-full flex-col items-center justify-center py-12 text-center text-sm text-[var(--inno-text-muted)]">
 							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 							{t("skills.libraryEmpty")}
@@ -600,13 +601,13 @@ export function SkillsPanel() {
 				{state.error ? <div className="border-b border-[var(--inno-border)] bg-[var(--inno-danger-bg)] px-3 py-2 text-xs text-[var(--inno-danger)]">{state.error}</div> : null}
 
 				{/* Skills list */}
-				<div className="min-h-0 flex-1 overflow-y-auto">
-					{state.isLoading ? (
-						<div className="flex items-center justify-center py-8 text-[var(--inno-text-muted)]">
-							<Spinner size={16} className="mr-2" />
-							{t("common.loading")}
-						</div>
-					) : state.skills.length === 0 ? (
+			<div className="min-h-0 flex-1 overflow-y-auto">
+				{state.isLoading ? (
+					<div className="flex flex-col items-center justify-center py-8 text-[var(--inno-text-muted)]">
+						<img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} />
+						{t("common.loading")}
+					</div>
+				) : state.skills.length === 0 ? (
 						<div className="flex h-full flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
 							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
 							<div className="text-base font-medium text-[var(--inno-text)]">{t("skills.empty")}</div>

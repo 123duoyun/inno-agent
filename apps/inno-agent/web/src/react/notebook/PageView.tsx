@@ -7,6 +7,7 @@ import { useStoreSnapshot } from "../hooks.js";
 import "@earendil-works/pi-web-ui";
 import { Spinner } from "../ui/Spinner.js";
 import { LazyMarkdownEditor } from "../LazyMarkdownEditor.js";
+import loadingGif from "../ui/loading.gif";
 
 function typeColor(type?: WikiPageType): string {
 	switch (type) {
@@ -72,7 +73,7 @@ export function PageView() {
 	if (state.isLoading) {
 		return (
 			<div className="flex h-full items-center justify-center bg-[var(--inno-workspace-bg,#fafafa)] text-[var(--inno-text-muted)]">
-				<Spinner size={20} />
+				<img src={loadingGif} alt="" width={64} height={64} className="select-none" draggable={false} />
 			</div>
 		);
 	}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 import { Spinner } from "./ui/Spinner.js";
 import emptyStateUrl from "./ui/Empty-State.svg";
+import loadingGif from "./ui/loading.gif";
 import { learnerStore } from "../stores/learner-store.js";
 import type {
 	GoalStatus,
@@ -958,11 +959,11 @@ export function LearnerProfilePanel() {
 				</div>
 
 				{state.isLoading ? (
-					<div className="flex items-center justify-center py-8 text-[var(--inno-text-muted)]">
-						<Spinner size={16} className="mr-2" />
-						{t("common.loading")}
-					</div>
-				) : null}
+				<div className="flex flex-col items-center justify-center py-8 text-[var(--inno-text-muted)]">
+					<img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} />
+					{t("common.loading")}
+				</div>
+			) : null}
 
 				{state.error ? <div className="rounded bg-[var(--inno-danger-bg)] p-2 text-sm text-[var(--inno-danger)]">{state.error}</div> : null}
 

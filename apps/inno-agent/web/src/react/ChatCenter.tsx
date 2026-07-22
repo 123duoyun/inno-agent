@@ -6,6 +6,7 @@ import type { TFunction } from "i18next";
 import { Paperclip, X, Square, RotateCcw, Image, AlertTriangle, Search, Folder, FolderOpen, FolderPlus, Zap, Check, ArrowUp, FileCode2, Sparkles } from "lucide-react";
 import { Spinner } from "./ui/Spinner.js";
 import emptyStateUrl from "./ui/Empty-State.svg";
+import loadingGif from "./ui/loading.gif";
 import type { ChatMessage, ChatToolRecord } from "../types/chat.js";
 import type { InlineImage } from "../api/chat.js";
 import { chatStore } from "../stores/chat-store.js";
@@ -1505,11 +1506,11 @@ export function ChatCenter() {
 				>
 					<div data-conversation-content className="mx-auto flex min-w-0 max-w-3xl flex-col gap-3">
 					{chat.isLoadingHistory && chat.messages.length === 0 ? (
-						<div className="flex h-full flex-col items-center justify-center pt-20 text-[var(--inno-text-muted)]">
-							<Spinner size={20} className="mb-3 text-[var(--inno-border-strong)]" />
-							<p className="text-sm">{t("chat.loadingSession")}</p>
-						</div>
-					) : null}
+					<div className="flex h-full flex-col items-center justify-center pt-20 text-[var(--inno-text-muted)]">
+						<img src={loadingGif} alt="" width={64} height={64} className="mb-3 select-none" draggable={false} />
+						<p className="text-sm">{t("chat.loadingSession")}</p>
+					</div>
+				) : null}
 
 					{!chat.isLoadingHistory && chat.messages.length === 0 && !chat.isSending ? (
 						<div className="flex flex-col items-center justify-center pt-20 text-center text-[var(--inno-text-muted)]">

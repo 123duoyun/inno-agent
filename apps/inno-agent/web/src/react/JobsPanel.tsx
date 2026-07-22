@@ -6,8 +6,8 @@ import { jobsStore } from "../stores/jobs-store.js";
 import type { CreateJobInput, ScheduledJob, TaskType } from "../types/jobs.js";
 import { useStoreSnapshot } from "./hooks.js";
 import { Checkbox } from "./ui/Checkbox.js";
-import { Spinner } from "./ui/Spinner.js";
 import emptyStateUrl from "./ui/Empty-State.svg";
+import loadingGif from "./ui/loading.gif";
 import { ScheduleEditor } from "./jobs/ScheduleEditor.js";
 import {
 	DEFAULT_SCHEDULE,
@@ -181,12 +181,12 @@ export function JobsPanel() {
 				</div>
 
 				<div className="min-h-0 flex-1 overflow-y-auto p-3">
-					{state.isLoading ? (
-						<div className="flex items-center justify-center py-8 text-[var(--inno-text-muted)]">
-							<Spinner size={16} className="mr-2" />
-							{t("common.loading")}
-						</div>
-					) : null}
+				{state.isLoading ? (
+					<div className="flex flex-col items-center justify-center py-8 text-[var(--inno-text-muted)]">
+						<img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} />
+						{t("common.loading")}
+					</div>
+				) : null}
 					{!state.isLoading && state.jobs.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-8 text-center text-sm text-[var(--inno-text-muted)]">
 							<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />

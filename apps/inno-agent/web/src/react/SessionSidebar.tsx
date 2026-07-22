@@ -38,7 +38,7 @@ import type { WorkspaceMeta } from "../api/workspaces.js";
 import { triggerDownload } from "../api/workspace.js";
 import type { SessionChannel, SessionMeta } from "../api/sessions.js";
 import { useStoreSnapshot } from "./hooks.js";
-import { Spinner } from "./ui/Spinner.js";
+import loadingGif from "./ui/loading.gif";
 import { InnoLogoIcon, InnoLogoIconAlt, InnoLogoText, NewChatSimple, NewChatNormal } from "./ui/InnoLogo.js";
 import { ModeSwitch } from "./ModeSwitch.js";
 
@@ -872,10 +872,10 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 				<div className="w-[310px] flex-1 min-h-0 overflow-y-auto sidebar-scroll mx-auto mt-[20px] px-0">
 					<div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--inno-text-subtle)]">{t("sidebar.recent")}</div>
 					{state.isLoading ? (
-						<div className="flex items-center justify-center py-8">
-							<Spinner size={16} className="text-[var(--inno-border-strong)]" />
-						</div>
-					) : recentSessions.length === 0 ? (
+					<div className="flex items-center justify-center py-8">
+						<img src={loadingGif} alt="" width={48} height={48} className="select-none" draggable={false} />
+					</div>
+				) : recentSessions.length === 0 ? (
 						<div className="inno-sidebar-text px-2 py-8 text-center text-[var(--inno-text-subtle)]">{t("sidebar.noConversations")}</div>
 					) : (
 						recentSessions.map((session) => {
@@ -1055,10 +1055,10 @@ export function SessionSidebar({ collapsed }: SessionSidebarProps) {
 			{/* Session list */}
 			<div className="w-[310px] flex-1 min-h-0 overflow-y-auto sidebar-scroll mx-auto mt-[20px] px-0">
 				{state.isLoading ? (
-					<div className="flex items-center justify-center py-8">
-						<Spinner size={16} className="text-[var(--inno-border-strong)]" />
-					</div>
-				) : groups.length === 0 ? (
+				<div className="flex items-center justify-center py-8">
+					<img src={loadingGif} alt="" width={48} height={48} className="select-none" draggable={false} />
+				</div>
+			) : groups.length === 0 ? (
 					<div className="inno-sidebar-text px-2 py-8 text-center text-[var(--inno-text-subtle)]">
 						{state.searchQuery ? t("sidebar.noMatch") : t("sidebar.noSessions")}
 					</div>

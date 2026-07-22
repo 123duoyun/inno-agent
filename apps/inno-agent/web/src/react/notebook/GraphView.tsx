@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Scan, Shuffle, Network, Tag } from "lucide-react";
 import refreshUrl from "../ui/refresh.svg";
 import emptyStateUrl from "../ui/Empty-State.svg";
-import { Spinner } from "../ui/Spinner.js";
+import loadingGif from "../ui/loading.gif";
 import cytoscape, { type Core, type ElementDefinition } from "cytoscape";
 import { ForceSimulation, type SimLink, type SimNode } from "./force-simulation.js";
 import type { WikiGraphEdge, WikiGraphNode } from "../../types/wiki.js";
@@ -655,11 +655,11 @@ export function GraphView() {
 				) : null}
 			</div>
 			{state.isLoading ? (
-				<div className="absolute inset-0 flex items-center justify-center bg-white/40 text-sm text-[var(--inno-text-muted)]">
-					<Spinner size={16} className="mr-2" />
-					{t("common.loading")}
-				</div>
-			) : null}
+			<div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 text-sm text-[var(--inno-text-muted)]">
+				<img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} />
+				{t("common.loading")}
+			</div>
+		) : null}
 			{!state.isLoading && state.nodes.length === 0 ? (
 				<div className="absolute inset-0 flex flex-col items-center justify-center text-center text-sm text-[var(--inno-text-muted)]">
 					<img src={emptyStateUrl} alt="" className="mb-3 h-32 w-36 select-none" draggable={false} />
