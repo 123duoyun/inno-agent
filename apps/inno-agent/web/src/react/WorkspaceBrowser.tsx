@@ -5,6 +5,7 @@ import { RefreshCw, FileText, FileType, Globe, File, FolderOpen, Folder, Pencil,
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
 import emptyStateUrl from "./ui/Empty-State.svg";
+import loadingGif from "./ui/loading.gif";
 import { workspaceStore, type StreamingWorkspacePreview } from "../stores/workspace-store.js";
 import { workspaceFileUrl, workspaceFolderZipUrl, triggerDownload } from "../api/workspace.js";
 import { workspacesStore } from "../stores/workspaces-store.js";
@@ -318,7 +319,7 @@ function HtmlPreview({ file }: { file: WorkspaceFileDetail }) {
 
 function Preview({ file, isLoading }: { file: WorkspaceFileDetail; isLoading: boolean }) {
 	const { t } = useTranslation();
-	if (isLoading) return <div className="flex h-full items-center justify-center text-sm text-[var(--inno-text-muted)]">{t("preview.loadingFile")}</div>;
+	if (isLoading) return <div className="flex h-full flex-col items-center justify-center text-[var(--inno-text-muted)]"><img src={loadingGif} alt="" width={64} height={64} className="mb-2 select-none" draggable={false} /><p className="text-sm">{t("preview.loadingFile")}</p></div>;
 	if (file.kind === "markdown") return <div className="workspace-scroll h-full overflow-y-auto p-5"><markdown-artifact content={normalizeMarkdownMath(file.content ?? "")} /></div>;
 		if (file.kind === "html") return <HtmlPreview file={file} />;
 	if (file.kind === "pdf") {
