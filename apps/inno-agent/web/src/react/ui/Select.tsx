@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Check } from "lucide-react";
 
 interface Option {
 	value: string;
@@ -86,7 +87,13 @@ export function Select({ value, options, onChange, className, placeholder, disab
 								className={`flex w-full items-center gap-2 pl-2 pr-8 py-1 text-left leading-tight transition-colors hover:bg-[var(--inno-surface-muted)] ${active ? "text-[var(--inno-text)]" : "text-[var(--inno-text)]"}`}
 								style={{ fontSize: "11px" }}
 							>
-								{o.label}
+								<Check
+									width={12}
+									height={12}
+									className={`shrink-0 ${active ? "text-[var(--inno-text)]" : "text-transparent"}`}
+									aria-hidden="true"
+								/>
+								<span className="flex-1 truncate">{o.label}</span>
 							</button>
 						);
 					})}
