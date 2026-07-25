@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { ScheduleSpec, Frequency } from "../../lib/schedule.js";
+import { Select } from "../ui/Select.js";
 
 interface ScheduleEditorProps {
 	value: ScheduleSpec;
@@ -28,17 +29,12 @@ export function ScheduleEditor({ value, onChange, error }: ScheduleEditorProps) 
 			<div className="grid grid-cols-2 gap-2">
 				<label className="block text-sm">
 					<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("jobs.form.frequency")}</span>
-					<select
+					<Select
 						className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
 						value={value.frequency}
-						onChange={(e) => patch({ frequency: e.target.value as Frequency })}
-					>
-						{FREQUENCIES.map((f) => (
-							<option key={f} value={f}>
-								{t(`jobs.frequency.${f}`)}
-							</option>
-						))}
-					</select>
+						onChange={(v) => patch({ frequency: v as Frequency })}
+						options={FREQUENCIES.map((f) => ({ value: f, label: t(`jobs.frequency.${f}`) }))}
+					/>
 				</label>
 				{value.frequency !== "custom" ? (
 					<label className="block text-sm">
@@ -85,18 +81,15 @@ export function ScheduleEditor({ value, onChange, error }: ScheduleEditorProps) 
 			{value.frequency === "monthly" ? (
 				<label className="block text-sm">
 					<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("jobs.form.dayOfMonth")}</span>
-					<select
+					<Select
 						className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
 						value={String(value.day)}
-						onChange={(e) => patch({ day: Number(e.target.value) })}
-					>
-						{Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-							<option key={d} value={d}>
-								{d}
-							</option>
-						))}
-						<option value={-1}>{t("jobs.form.lastDay")}</option>
-					</select>
+						onChange={(v) => patch({ day: Number(v) })}
+						options={[
+							...Array.from({ length: 31 }, (_, i) => i + 1).map((d) => ({ value: String(d), label: String(d) })),
+							{ value: "-1", label: t("jobs.form.lastDay") },
+						]}
+					/>
 				</label>
 			) : null}
 

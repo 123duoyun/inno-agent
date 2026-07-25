@@ -6,6 +6,7 @@ import { jobsStore } from "../stores/jobs-store.js";
 import type { CreateJobInput, ScheduledJob, TaskType } from "../types/jobs.js";
 import { useStoreSnapshot } from "./hooks.js";
 import { Checkbox } from "./ui/Checkbox.js";
+import { Select } from "./ui/Select.js";
 import emptyStateUrl from "./ui/Empty-State.svg";
 import loadingGif from "./ui/loading.gif";
 import { ScheduleEditor } from "./jobs/ScheduleEditor.js";
@@ -310,17 +311,12 @@ export function JobsPanel() {
 
 							<label className="block text-sm">
 								<span className="mb-1 block font-medium text-[var(--inno-text)]">{t("jobs.form.taskType")}</span>
-								<select
+								<Select
 									className="w-full rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
 									value={form.taskType}
-									onChange={(event) => setForm({ ...form, taskType: event.target.value as TaskType })}
-								>
-									{TASK_TYPE_IDS.map((id) => (
-										<option key={id} value={id}>
-											{t(`jobs.taskTypes.${id}`)}
-										</option>
-									))}
-								</select>
+									onChange={(v) => setForm({ ...form, taskType: v as TaskType })}
+									options={TASK_TYPE_IDS.map((id) => ({ value: id, label: t(`jobs.taskTypes.${id}`) }))}
+								/>
 							</label>
 
 							<label className="block text-sm">
