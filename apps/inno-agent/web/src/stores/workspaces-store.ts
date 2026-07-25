@@ -41,7 +41,12 @@ class WorkspacesStoreImpl extends EventEmitter<WorkspacesStoreEvents> {
 
 	async create(input: CreateWorkspaceInput): Promise<WorkspaceMeta> {
 		const ws = await createWorkspace(input);
-		this.workspaces = [...this.workspaces, ws];
+		const idx = this.workspaces.findIndex((w) => w.id === ws.id);
+		if (idx >= 0) {
+			this.workspaces = this.workspaces.map((w) => (w.id === ws.id ? { ...w, ...ws } : w));
+		} else {
+			this.workspaces = [...this.workspaces, ws];
+		}
 		this.emit("change", undefined);
 		return ws;
 	}
