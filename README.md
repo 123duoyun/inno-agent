@@ -5,7 +5,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.6.0-brightgreen.svg)](https://nodejs.org)
 [![Release](https://img.shields.io/github/v/release/hhyqhh/inno-agent.svg)](https://github.com/hhyqhh/inno-agent/releases)
-[![TypeScript](https://img.shields.io/badge/TypeScript-ESM-3178c6.svg)](https://www.typescriptlang.org/)
 [![Website](https://img.shields.io/badge/Website-Inno%20Agent-ff6b35.svg)](https://hhyqhh.github.io/inno-agent-website/)
 
 **English** | [简体中文](./README.zh-CN.md)
@@ -83,16 +82,6 @@ Open **http://localhost:3000**. See **[QUICKSTART.md](./QUICKSTART.md)** (中文
 docker compose up -d   # serves on :3000, mounts runtime/ and workspace/
 ```
 
-## Use Cases
-
-Real-world usage guides live in [`docs/use-cases/`](https://github.com/hhyqhh/inno-agent/tree/main/docs/use-cases).
-
-| Guide                                                                             | Description                                                                                                                    |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [Skill Tutorial — Building a Workspace Agent](./docs/use-cases/skill-tutorial.md) | Use`agent.md` and `.skills/` to build a custom learning agent scoped to a workspace, with a concrete English study example |
-
----
-
 ## Run Modes
 
 ```bash
@@ -138,15 +127,14 @@ Each provider declares a `baseUrl`, an `api` (`openai-completions` or `anthropic
 
 Both CLI and server resolve paths through `apps/inno-agent/src/runtime.ts`. Precedence: **CLI flag > env var > `~/.inno-agent/...`**.
 
-| CLI flag                              | Env var                    | Default                     |
-| ------------------------------------- | -------------------------- | --------------------------- |
-| `--home`                            | `INNO_HOME`              | `~/.inno-agent`           |
-| `--config`                          | `INNO_CONFIG_FILE`       | `<configDir>/config.json` |
-| `--config-dir`                      | `INNO_CONFIG_DIR`        | `<home>/config`           |
-| `--data` / `--data-dir`           | `INNO_DATA_DIR`          | `<home>/data`             |
-| `--skills` / `--skills-dir`       | `INNO_SKILLS_DIR`        | `<home>/skills`           |
-| `--workspace` / `--workspace-dir` | `INNO_WORKSPACE_DIR`     | invocation CWD              |
-| `--port`                            | `INNO_PORT` (`config`) | `3000`                    |
+| CLI flag | Env var | Default |
+|---|---|---|
+| `--home` | `INNO_HOME` | `~/.inno-agent` |
+| `--config-dir` | `INNO_CONFIG_DIR` | `<home>/config` |
+| `--data` | `INNO_DATA_DIR` | `<home>/data` |
+| `--skills` | `INNO_SKILLS_DIR` | `<home>/skills` |
+| `--workspace` | `INNO_WORKSPACE_DIR` | invocation CWD |
+| `--port` | `INNO_PORT` | `3000` |
 
 ### Content Hub
 
