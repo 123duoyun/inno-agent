@@ -159,7 +159,7 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 			) : null}
 
 			<div className="flex h-10 items-center gap-1 border-b border-[var(--inno-border)] bg-[var(--inno-workspace-chrome)] px-2">
-				<div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden">
+				<div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden self-stretch">
 					{tabs.map((tab) => {
 						const label = t(`workspace.tabs.${tab}`);
 						const isActive = activeTab === tab;
@@ -167,7 +167,7 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 						return (
 							<button
 								key={tab}
-								className={`inno-workspace-tab flex h-7 shrink-0 items-center gap-1 whitespace-nowrap transition-colors px-2 ${isActive ? "text-[var(--inno-text)]" : "text-[var(--inno-text-muted)]"}`}
+								className={`inno-workspace-tab flex shrink-0 items-center gap-1 whitespace-nowrap transition-colors px-2 self-stretch ${isActive ? "text-[var(--inno-text)]" : "text-[var(--inno-text-muted)]"}`}
 								style={{ fontWeight: isActive ? 600 : 400, borderBottom: isActive ? "2px solid #1f2328" : "2px solid transparent" }}
 								onClick={() => onTabChange(tab)}
 								title={compact ? label : undefined}
