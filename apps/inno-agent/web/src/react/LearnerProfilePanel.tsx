@@ -197,7 +197,7 @@ function SummarySection() {
 				<Stat label={t("profile.summary.openMisconceptions")} value={openMisc} />
 			</div>
 			<textarea
-				className="h-32 w-full resize-none rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
+				className="h-32 w-full resize-none rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-3 py-2 text-sm placeholder:text-[var(--inno-text-subtle)] focus-visible:border-[var(--inno-focus-border)] focus-visible:outline-none focus-visible:shadow-[var(--inno-ring)]"
 				placeholder={t("profile.summary.placeholder") ?? ""}
 				value={buffer}
 				onChange={(e) => {
