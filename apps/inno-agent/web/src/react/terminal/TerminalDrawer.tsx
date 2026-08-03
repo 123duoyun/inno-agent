@@ -110,7 +110,7 @@ export function TerminalDrawer() {
 							<RunsPanel sessionId={sess.currentSessionId} onClose={() => setShowHistory(false)} />
 						</div>
 					) : (
-						<div className="flex-1 min-h-0 p-2">
+						<div className="flex-1 min-h-0">
 							<div className="h-full overflow-hidden rounded-md border border-[var(--inno-border)] bg-[#0f172a] p-1.5 shadow-inner">
 								<TerminalView
 									key={`${sess.currentSessionId}:${ws.activeWorkspaceId ?? "default"}`}
