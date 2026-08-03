@@ -1,7 +1,7 @@
 import { createContext, lazy, memo, Suspense, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
-import { RefreshCw, FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Upload, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, ListChecks, Trash2 } from "lucide-react";
+import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2 } from "lucide-react";
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
 import emptyStateUrl from "./ui/Empty-State.svg";
@@ -435,7 +435,7 @@ function StreamingPreviewPane({ preview, onToggleSidebar, sidebarOpen }: { previ
 			<div className="flex h-10 items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface)] px-3">
 				<div className="flex min-w-0 flex-1 items-center gap-2">
 					<button
-						className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
+						className="inno-toolbar-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "收起侧栏") : t("common.expandSidebar", "展开侧栏")}
 					>
@@ -622,19 +622,31 @@ const WorkspaceMultiSelectContext = createContext<WorkspaceMultiSelectState>({
 });
 
 function Node({ node, style, dragHandle }: NodeRendererProps<ArboristNode>) {
+	const { t } = useTranslation();
 	const isDir = !node.isLeaf;
 	const multiSelect = useContext(WorkspaceMultiSelectContext);
 	const selected = multiSelect.enabled ? multiSelect.selectedIds.has(node.data.path) : node.isSelected;
 	const level = node.level;
+	const moreBtnRef = useRef<HTMLButtonElement>(null);
+
+	const openMenu = useCallback((e: React.MouseEvent) => {
+		e.stopPropagation();
+		node.select();
+		const rect = moreBtnRef.current?.getBoundingClientRect();
+		const x = rect ? rect.right : e.clientX;
+		const y = rect ? rect.bottom : e.clientY;
+		const ev = new CustomEvent("workspace-ctx", { detail: { x, y, node: node.data }, bubbles: true });
+		(moreBtnRef.current ?? e.currentTarget as HTMLElement).dispatchEvent(ev);
+	}, [node]);
 
 	return (
 		<div
 			ref={dragHandle}
 			style={{ ...style, height: "100%", paddingLeft: 8 }}
-			className={`group flex items-center gap-1.5 rounded-md pr-2 text-xs cursor-pointer select-none relative ${
+			className={`group flex items-center gap-1.5 rounded-[8px] pr-2 text-xs cursor-pointer select-none relative ${
 				selected
 					? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)] ring-1 ring-blue-100"
-					: "text-[var(--inno-text-muted)] hover:bg-slate-100/85 hover:text-[var(--inno-text)]"
+					: "text-[var(--inno-text-muted)] hover:bg-[#E6E6E9] hover:text-[var(--inno-text)]"
 			}`}
 			onClick={(e) => {
 				e.stopPropagation();
@@ -758,7 +770,17 @@ function Node({ node, style, dragHandle }: NodeRendererProps<ArboristNode>) {
 			) : (
 				<>
 					<span className="min-w-0 flex-1 truncate">{node.data.name}</span>
-					{node.isLeaf && <span className="text-[10px] opacity-50 pl-1">{formatSize(node.data.size)}</span>}
+					{node.isLeaf && (
+						<span className="text-[10px] opacity-50 pl-1 group-hover:hidden">{formatSize(node.data.size)}</span>
+					)}
+					<button
+						ref={moreBtnRef}
+						title={t("files.actions", "Actions")}
+						onClick={openMenu}
+						className="hidden h-4 w-4 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] group-hover:flex"
+					>
+						<MoreHorizontal size={12} />
+					</button>
 				</>
 			)}
 		</div>

@@ -241,7 +241,7 @@ function SkillFilePane({ skillName, onToggleSidebar, sidebarOpen }: { skillName:
 		<div className="flex h-full flex-col">
 			<div className="flex h-10 items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface-muted)] px-2">
 				<div className="flex min-w-0 flex-1 items-center gap-2">
-					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" onClick={onToggleSidebar}>
+					<button className="inno-toolbar-icon-btn flex h-6 w-6 shrink-0 items-center justify-center rounded-full" onClick={onToggleSidebar}>
 						{sidebarOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
 					</button>
 					<div className="min-w-0">
@@ -317,9 +317,9 @@ function SkillDetail({ skill, onBack }: { skill: SkillInfo; onBack: () => void }
 						<Checkbox checked={skill.enabled} onChange={(v) => void skillsStore.setEnabled(skill.name, v)} />
 						{t("common.enable", "Enable")}
 					</label>
-					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>
-						<img src={refreshUrl} alt="" style={{ width: "12px", height: "12px" }} />
-					</button>
+					<button className="inno-toolbar-icon-btn flex h-6 w-6 shrink-0 items-center justify-center rounded-full" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.refreshTree()}>
+					<span className="inno-toolbar-icon h-3 w-3" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
+				</button>
 					<button className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-danger)] transition-colors hover:bg-[var(--inno-danger-bg)] hover:text-[var(--inno-danger)]" title={t("common.delete", "Delete")} onClick={() => { void skillsStore.remove(skill.name); onBack(); }}>
 						<Trash2 size={12} />
 					</button>
@@ -412,18 +412,18 @@ function SkillLibraryModal({ onClose }: { onClose: () => void }) {
 					</div>
 					<div className="flex shrink-0 items-center gap-1">
 						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-							title={t("skills.reload")}
-							onClick={() => void skillsStore.loadLibrary(true)}
-						>
-							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
-						</button>
-						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-							onClick={onClose}
-						>
-							<X size={16} />
-						</button>
+						className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+						title={t("skills.reload")}
+						onClick={() => void skillsStore.loadLibrary(true)}
+					>
+						<span className="inno-toolbar-icon h-3.5 w-3.5" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
+					</button>
+					<button
+						className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+						onClick={onClose}
+					>
+						<X size={16} />
+					</button>
 					</div>
 				</div>
 
@@ -561,13 +561,13 @@ export function SkillsPanel() {
 					<h3 className="min-w-0 truncate text-sm font-medium text-[var(--inno-text)]">{t("skills.title")}</h3>
 					<div className="flex shrink-0 items-center gap-1.5">
 						<input ref={uploadRef} type="file" className="hidden" accept=".zip,application/zip,.md,text/markdown,text/plain" onChange={handleUpload} />
-						<button className="flex h-7 items-center gap-1 rounded-md px-2 text-xs text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("skills.library")} onClick={() => skillsStore.openLibrary()}>
-							<Library size={14} />
-							<span className="hidden @[26rem]/skillspanel:inline">{t("skills.library")}</span>
-						</button>
-						<button className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.reload()}>
-							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
-						</button>
+						<button className="inno-toolbar-icon-btn flex h-7 items-center gap-1 rounded-md px-2 text-xs" title={t("skills.library")} onClick={() => skillsStore.openLibrary()}>
+						<Library size={14} />
+						<span className="hidden @[26rem]/skillspanel:inline">{t("skills.library")}</span>
+					</button>
+						<button className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.reload()}>
+						<span className="inno-toolbar-icon h-3.5 w-3.5" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
+					</button>
 						<button className="flex h-7 items-center gap-1 rounded-md inno-primary-button px-2 text-xs text-white disabled:opacity-50" disabled={state.isUploading} title={state.isUploading ? t("skills.uploading") : t("skills.upload")} onClick={() => uploadRef.current?.click()}>
 							<Upload size={14} />
 							<span className="hidden @[26rem]/skillspanel:inline">{state.isUploading ? t("skills.uploading") : t("skills.upload")}</span>

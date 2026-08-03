@@ -147,12 +147,12 @@ export function Notebook() {
 				<div className="@container flex items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface-muted)] px-3 py-2">
 					<div className="flex items-center gap-2">
 						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
-							onClick={() => setSidebarOpen((v) => !v)}
-							title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
-						>
-							{sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
-						</button>
+						className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+						onClick={() => setSidebarOpen((v) => !v)}
+						title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
+					>
+						{sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+					</button>
 						<div className="inline-flex rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface-muted)] p-0.5 text-xs">
 							<button
 								className={`inline-flex items-center gap-1 rounded px-3 py-1 ${state.view === "graph" ? "bg-[var(--inno-surface)] shadow text-[var(--inno-text)]" : "text-[var(--inno-text-muted)]"}`}

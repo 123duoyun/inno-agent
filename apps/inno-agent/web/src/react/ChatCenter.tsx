@@ -1263,10 +1263,10 @@ export function ChatCenter() {
 			/>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-1">
-					<button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:opacity-50" title={activeWorkspaceId ? t("chat.uploadFiles") : t("chat.uploadHint")} disabled={chat.isSending || isUploading || !activeWorkspaceId} onClick={() => fileInputRef.current?.click()}>
+					<button className="inno-toolbar-icon-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full disabled:opacity-50" title={activeWorkspaceId ? t("chat.uploadFiles") : t("chat.uploadHint")} disabled={chat.isSending || isUploading || !activeWorkspaceId} onClick={() => fileInputRef.current?.click()}>
 						{isUploading ? <Spinner size={16} /> : <Paperclip size={16} />}
 					</button>
-					<button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)] disabled:opacity-50" title={t("chat.attachImage")} disabled={chat.isSending} onClick={() => imageInputRef.current?.click()}>
+					<button className="inno-toolbar-icon-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full disabled:opacity-50" title={t("chat.attachImage")} disabled={chat.isSending} onClick={() => imageInputRef.current?.click()}>
 						<Image size={16} />
 					</button>
 				</div>
