@@ -920,6 +920,16 @@ inno-workspace-panel textarea {
 	tab-size: inherit !important;
 }
 
+/* MDEditor — sharp corners (container + toolbar) */
+.w-md-editor,
+.w-md-editor-toolbar,
+.w-md-editor-toolbar button,
+.w-md-editor-toolbar ul,
+.w-md-editor-toolbar li,
+.w-md-editor-toolbar-child {
+	border-radius: 0 !important;
+}
+
 /* Reduced motion — collapse non-essential animation for users who prefer it.
    Keeps opacity/color transitions for comprehension; kills movement. */
 @media (prefers-reduced-motion: reduce) {
