@@ -256,8 +256,8 @@ function GroupHeader({
 				onClick={(e) => { e.stopPropagation(); openMenu(); }}
 			>
 				{pinned && <Pin size={9} className="absolute -top-0.5 -right-0.5 text-[var(--inno-accent)]" />}
-				<span aria-hidden className="group-hover/wsh:hidden">{group.sessions.length}</span>
-				<span aria-hidden className="hidden group-hover/wsh:inline">…</span>
+			<span aria-hidden className="group-hover/wsh:hidden">{group.sessions.length}</span>
+			<span aria-hidden className="hidden group-hover/wsh:inline">···</span>
 			</button>
 		)}
 		</div>
@@ -417,7 +417,7 @@ function SessionCard({
 				onClick={(e) => { e.stopPropagation(); onOpenMenu(e.currentTarget); }}
 			>
 				<span aria-hidden className="group-hover/card:hidden">{formatTime(session.updatedAt)}</span>
-				<span aria-hidden className="hidden group-hover/card:inline">…</span>
+				<span aria-hidden className="hidden group-hover/card:inline">···</span>
 			</button>
 			</div>
 		</div>
