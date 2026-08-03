@@ -1349,8 +1349,8 @@ export function ChatCenter() {
 									onClick={() => setShowWsOptions((v) => !v)}
 									className="flex w-fit items-center gap-3.5 rounded-md border border-[var(--inno-border)] bg-[var(--inno-surface)] px-2.5 py-0.5 text-[11px] text-[var(--inno-text-muted)] transition-colors hover:border-[var(--inno-accent)] hover:text-[var(--inno-accent)]"
 								>
-									<span className="flex items-center gap-1"><Folder size={11} />{t("workspace.title")}</span>
-									<svg className={`h-2.5 w-2.5 transition-transform ${showWsOptions ? "rotate-90" : ""}`} viewBox="0 0 8 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+									<span className="flex items-center gap-1"><Folder size={14} />{t("workspace.title")}</span>
+									<svg className={`h-3 w-3 transition-transform ${showWsOptions ? "rotate-90" : ""}`} viewBox="0 0 8 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 								</button>
 								{showWsOptions ? (
 									<div className="mt-1.5 inline-flex flex-col rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] p-0.5">
@@ -1361,8 +1361,8 @@ export function ChatCenter() {
 													onClick={() => setShowWsDropdown((v) => !v)}
 													className="flex w-full items-center justify-between gap-1 rounded px-2 py-0.5 text-[11px] transition-colors text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 												>
-													<span className="flex items-center gap-1"><FolderOpen size={11} />{t("chat.wsExisting")}</span>
-													<svg className={`h-2.5 w-2.5 transition-transform ${showWsDropdown ? "rotate-90" : ""}`} viewBox="0 0 8 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+													<span className="flex items-center gap-1"><FolderOpen size={14} />{t("chat.wsExisting")}</span>
+													<svg className={`h-3 w-3 transition-transform ${showWsDropdown ? "rotate-90" : ""}`} viewBox="0 0 8 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 												</button>
 												{showWsDropdown ? (
 													<div className="absolute left-full top-0 ml-1 w-auto whitespace-nowrap rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] py-0.5 shadow-lg z-50" onMouseEnter={() => { if (wsDropdownTimerRef.current) { clearTimeout(wsDropdownTimerRef.current); wsDropdownTimerRef.current = null; } }} onMouseLeave={() => { wsDropdownTimerRef.current = setTimeout(() => setShowWsDropdown(false), 200); }}>
@@ -1393,7 +1393,7 @@ export function ChatCenter() {
 											}}
 											className="rounded px-2 py-0.5 text-left text-[11px] transition-colors text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 										>
-											<span className="flex items-center gap-1"><FolderPlus size={11} />{t("chat.wsNew")}</span>
+											<span className="flex items-center gap-1"><FolderPlus size={14} />{t("chat.wsNew")}</span>
 										</button>
 										<button
 											type="button"
@@ -1409,7 +1409,7 @@ export function ChatCenter() {
 											}}
 											className="rounded px-2 py-0.5 text-left text-[11px] transition-colors text-[var(--inno-text-muted)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-text)]"
 										>
-											<span className="flex items-center gap-1"><Zap size={11} />临时工作区(用完即弃)</span>
+											<span className="flex items-center gap-1"><Zap size={14} />临时工作区(用完即弃)</span>
 										</button>
 									</div>
 								) : null}
