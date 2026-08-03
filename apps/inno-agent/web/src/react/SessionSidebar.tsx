@@ -391,7 +391,7 @@ function SessionCard({
 			}}
 		>
 			{/* Top row: name + time */}
-			<div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+			<div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
 				{editing ? (
 					<input
 						className="inno-sidebar-title min-w-0 flex-1 rounded border border-[var(--inno-accent)] bg-[var(--inno-surface)] px-1.5 py-0.5 outline-none focus-visible:shadow-[var(--inno-ring)]"
