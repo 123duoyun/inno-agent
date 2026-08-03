@@ -18,4 +18,14 @@ createRoot(rootEl).render(
 	</StrictMode>,
 );
 
+// 工具栏图标按钮：按下后维持 #555AFF 0.5s 再恢复
+document.addEventListener("pointerdown", (e) => {
+	const btn = (e.target as HTMLElement)?.closest?.(".inno-toolbar-icon-btn") as HTMLElement | null;
+	if (!btn || btn.hasAttribute("disabled")) return;
+	btn.classList.remove("pressed");
+	void btn.offsetWidth; // 强制 reflow，允许重复触发
+	btn.classList.add("pressed");
+	window.setTimeout(() => btn.classList.remove("pressed"), 500);
+});
+
 console.log("[inno-web] React initialized");

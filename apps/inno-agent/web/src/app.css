@@ -464,6 +464,38 @@ inno-workspace-panel textarea {
 	cursor: not-allowed;
 }
 
+/* 工具栏图标按钮：默认 #797989 / 悬停 #0A0A28 / 按压 #555AFF
+   color 驱动内联 SVG（currentColor）；mask span 用 currentColor 跟随 color 变化
+   图标 URL 由 --inno-icon-url 传入 */
+.inno-toolbar-icon-btn {
+	color: #797989;
+	transition: color var(--inno-dur-ui) var(--inno-ease-out), background-color var(--inno-dur-ui) var(--inno-ease-out);
+}
+
+.inno-toolbar-icon-btn:hover:not(:disabled) {
+	color: #0A0A28;
+	background-color: #ffffff;
+}
+
+.inno-toolbar-icon-btn:active:not(:disabled),
+.inno-toolbar-icon-btn.pressed:not(:disabled) {
+	color: #555AFF;
+	transition-duration: 0ms;
+}
+
+.inno-toolbar-icon-btn .inno-toolbar-icon {
+	display: block;
+	background-color: currentColor;
+	-webkit-mask-image: var(--inno-icon-url);
+	mask-image: var(--inno-icon-url);
+	-webkit-mask-position: center;
+	mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+}
+
 .inno-chat-grid {
 	background:
 		linear-gradient(90deg, var(--inno-grid-color, rgba(226, 232, 240, 0.38)) 1px, transparent 1px),

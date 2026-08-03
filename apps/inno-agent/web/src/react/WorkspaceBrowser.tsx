@@ -566,7 +566,7 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 			<div className="flex h-10 items-center justify-between border-b border-[var(--inno-border)] bg-[var(--inno-surface-muted)] px-2">
 				<div className="flex min-w-0 flex-1 items-center gap-2">
 					<button
-						className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)] disabled:opacity-40"
+						className="inno-toolbar-icon-btn flex h-6 w-6 shrink-0 items-center justify-center rounded-full disabled:opacity-40"
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
 					>
@@ -1113,25 +1113,25 @@ export function WorkspaceBrowser() {
 							{activeWorkspaceName || "工作区"}
 						</span>
 					</div>
-					<button
-						disabled={busy}
-						className={`flex h-6 w-6 items-center justify-center rounded transition-colors disabled:opacity-40 ${
-							multiSelectMode
-								? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)]"
-								: "text-[var(--inno-text-subtle)] hover:bg-[var(--inno-surface-muted)] hover:text-[var(--inno-accent)]"
-						}`}
-						title={multiSelectMode ? t("files.exitMultiSelect", "Exit multi-select") : t("files.multiSelect", "Select multiple files")}
-						aria-label={multiSelectMode ? t("files.exitMultiSelect", "Exit multi-select") : t("files.multiSelect", "Select multiple files")}
-						aria-pressed={multiSelectMode}
-						onClick={toggleMultiSelectMode}
-					>
-						<ListChecks size={14} />
+				<button
+					disabled={busy}
+					className={`flex h-6 w-6 items-center justify-center rounded-full disabled:opacity-40 ${
+						multiSelectMode
+							? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)]"
+							: "inno-toolbar-icon-btn"
+					}`}
+					title={multiSelectMode ? t("files.exitMultiSelect", "Exit multi-select") : t("files.multiSelect", "Select multiple files")}
+					aria-label={multiSelectMode ? t("files.exitMultiSelect", "Exit multi-select") : t("files.multiSelect", "Select multiple files")}
+					aria-pressed={multiSelectMode}
+					onClick={toggleMultiSelectMode}
+				>
+					<ListChecks size={14} />
+				</button>
+				<button disabled={busy} className="inno-toolbar-icon-btn flex h-6 w-6 items-center justify-center rounded-full disabled:opacity-40" title={t("files.uploadSkill", "Upload skill package (.zip/.md) to .skills")} onClick={() => skillUploadRef.current?.click()}>
+					<span className="inno-toolbar-icon h-4 w-4" style={{ "--inno-icon-url": `url(${uploadUrl})` } as React.CSSProperties} />
 					</button>
-					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-violet-100 hover:text-violet-600 disabled:opacity-40" title={t("files.uploadSkill", "Upload skill package (.zip/.md) to .skills")} onClick={() => skillUploadRef.current?.click()}>
-						<img src={uploadUrl} alt="" style={{ width: "16px", height: "16px" }} />
-					</button>
-					<button disabled={busy} className="flex h-6 w-6 items-center justify-center rounded-full text-[var(--inno-text-subtle)] transition-colors hover:bg-slate-200 hover:text-[var(--inno-text)] disabled:opacity-40" title={t("preview.refresh", "Refresh")} onClick={() => void workspaceStore.loadTree()}>
-						<img src={refreshUrl} alt="" style={{ width: "16px", height: "16px" }} />
+					<button disabled={busy} className="inno-toolbar-icon-btn flex h-6 w-6 items-center justify-center rounded-full disabled:opacity-40" title={t("preview.refresh", "Refresh")} onClick={() => void workspaceStore.loadTree()}>
+						<span className="inno-toolbar-icon h-4 w-4" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
 					</button>
 					<input ref={skillUploadRef} type="file" multiple accept=".zip,application/zip,.md,text/markdown" className="hidden" onChange={handleSkillUploadChange} />
 				</div>

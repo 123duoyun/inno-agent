@@ -923,12 +923,12 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 		return (
 			<aside className="relative h-full w-0 overflow-visible">
 				<button
-					className="absolute left-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-lg text-[var(--inno-text-subtle)] transition-colors hover:bg-white/90 hover:text-[var(--inno-text)] hover:shadow-sm"
-					title={t("sidebar.expand")}
-					onClick={() => appStore.setSidebarCollapsed(false)}
-				>
-					<PanelLeftOpen size={16} />
-				</button>
+				className="inno-toolbar-icon-btn absolute left-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full"
+				title={t("sidebar.expand")}
+				onClick={() => appStore.setSidebarCollapsed(false)}
+			>
+				<PanelLeftOpen size={16} />
+			</button>
 			</aside>
 		);
 	}
@@ -978,12 +978,12 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 						</h1>
 					</div>
 					<button
-						className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
-						title={t("sidebar.collapse")}
-						onClick={() => appStore.setSidebarCollapsed(true)}
-					>
-						<PanelLeftClose size={14} />
-					</button>
+					className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+					title={t("sidebar.collapse")}
+					onClick={() => appStore.setSidebarCollapsed(true)}
+				>
+					<PanelLeftClose size={14} />
+				</button>
 				</div>
 
 			<div className="mt-[20px]">
@@ -1161,19 +1161,19 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 					</div>
 					<div className="flex items-center gap-1">
 						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
-							title={t("common.refresh")}
-							onClick={() => void sessionsStore.load()}
-						>
-							<img src={refreshUrl} alt="" style={{ width: "14px", height: "14px" }} />
-						</button>
-						<button
-							className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-surface)] hover:text-[var(--inno-text-muted)]"
-							title={t("sidebar.collapse")}
-							onClick={() => appStore.setSidebarCollapsed(true)}
-						>
-							<PanelLeftClose size={14} />
-						</button>
+						className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+						title={t("common.refresh")}
+						onClick={() => void sessionsStore.load()}
+					>
+						<span className="inno-toolbar-icon h-3.5 w-3.5" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
+					</button>
+					<button
+						className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+						title={t("sidebar.collapse")}
+						onClick={() => appStore.setSidebarCollapsed(true)}
+					>
+						<PanelLeftClose size={14} />
+					</button>
 					</div>
 				</div>
 			</div>
