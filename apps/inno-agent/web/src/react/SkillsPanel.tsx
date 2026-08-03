@@ -561,12 +561,12 @@ export function SkillsPanel() {
 					<h3 className="min-w-0 truncate text-sm font-medium text-[var(--inno-text)]">{t("skills.title")}</h3>
 					<div className="flex shrink-0 items-center gap-1.5">
 						<input ref={uploadRef} type="file" className="hidden" accept=".zip,application/zip,.md,text/markdown,text/plain" onChange={handleUpload} />
-						<button className="inno-toolbar-icon-btn flex h-7 items-center gap-1 rounded-md px-2 text-xs" title={t("skills.library")} onClick={() => skillsStore.openLibrary()}>
-						<Library size={14} />
-						<span className="hidden @[26rem]/skillspanel:inline">{t("skills.library")}</span>
-					</button>
 						<button className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full" title={t("preview.refresh", "Refresh")} onClick={() => void skillsStore.reload()}>
 						<span className="inno-toolbar-icon h-3.5 w-3.5" style={{ "--inno-icon-url": `url(${refreshUrl})` } as React.CSSProperties} />
+					</button>
+					<button className="inno-toolbar-icon-btn flex h-7 items-center gap-1 rounded-md px-2 text-xs" title={t("skills.library")} onClick={() => skillsStore.openLibrary()}>
+						<Library size={14} />
+						<span className="hidden @[26rem]/skillspanel:inline">{t("skills.library")}</span>
 					</button>
 						<button className="flex h-7 items-center gap-1 rounded-md inno-primary-button px-2 text-xs text-white disabled:opacity-50" disabled={state.isUploading} title={state.isUploading ? t("skills.uploading") : t("skills.upload")} onClick={() => uploadRef.current?.click()}>
 							<Upload size={14} />
