@@ -1,7 +1,7 @@
 import { createContext, lazy, memo, Suspense, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
-import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2, FilePlus, FolderPlus } from "lucide-react";
+import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelRightClose, PanelRightOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2, FilePlus, FolderPlus } from "lucide-react";
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
 import emptyStateUrl from "./ui/Empty-State.svg";
@@ -439,7 +439,7 @@ function StreamingPreviewPane({ preview, onToggleSidebar, sidebarOpen }: { previ
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "收起侧栏") : t("common.expandSidebar", "展开侧栏")}
 					>
-						{sidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+						{sidebarOpen ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
 					</button>
 					<span className={`inno-stream-status-dot ${isStreaming ? "is-streaming" : ""}`} />
 					<div className="min-w-0">
@@ -570,7 +570,7 @@ function FileContentPane({ onToggleSidebar, sidebarOpen }: { onToggleSidebar: ()
 						onClick={onToggleSidebar}
 						title={sidebarOpen ? t("common.collapseSidebar", "Collapse sidebar") : t("common.expandSidebar", "Expand sidebar")}
 					>
-						{sidebarOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
+						{sidebarOpen ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
 					</button>
 					<div className="min-w-0">
 						<div className="truncate text-sm font-medium">{state.file?.name ?? t("preview.noFile", "No file selected")}</div>
@@ -1119,7 +1119,8 @@ export function WorkspaceBrowser() {
 		if (!isResizing) return;
 		const handlePointerMove = (event: PointerEvent) => {
 			const dx = event.clientX - resizeStartRef.current.x;
-			setSidebarWidth(Math.max(180, Math.min(600, resizeStartRef.current.width + dx)));
+			// Tree pane is on the right: dragging the handle leftwards (dx<0) widens it.
+			setSidebarWidth(Math.max(180, Math.min(600, resizeStartRef.current.width - dx)));
 		};
 		const handlePointerUp = () => setIsResizing(false);
 		document.body.classList.add("workspace-resizing");
@@ -1133,7 +1134,7 @@ export function WorkspaceBrowser() {
 	}, [isResizing]);
 
 	const gridTemplate = showContent
-		? (sidebarOpen ? `${sidebarWidth}px minmax(0,1fr)` : "0px minmax(0,1fr)")
+		? (sidebarOpen ? `minmax(0,1fr) ${sidebarWidth}px` : "minmax(0,1fr) 0px")
 		: "minmax(0,1fr)";
 
 	return (
@@ -1142,13 +1143,23 @@ export function WorkspaceBrowser() {
 			className="relative grid h-full min-h-0 gap-0 bg-transparent p-0"
 			style={{ gridTemplateColumns: gridTemplate, transition: isResizing ? "none" : "grid-template-columns 200ms" }}
 		>
-			{/* --- Tree pane --- */}
-			<aside
-				className={`relative flex min-h-0 flex-col overflow-hidden border-r border-[var(--inno-border)] transition-opacity duration-200 ${isDragOver ? "border-l border-t border-b border-[var(--inno-border)] bg-[var(--inno-accent-soft)]" : ""} ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
-				onDragOver={handleDragOver}
-				onDragLeave={handleDragLeave}
-				onDrop={handleDrop}
-			>
+			{/* --- Preview / Edit pane (left side) --- */}
+		{showContent ? (
+			<section className="flex min-w-0 min-h-0 flex-col overflow-hidden">
+				<div className="flex min-h-0 flex-1 flex-col">
+					<FileContentPane onToggleSidebar={() => setSidebarOpen((v) => !v)} sidebarOpen={sidebarOpen} />
+				</div>
+				{!simpleMode && <TerminalDrawer />}
+			</section>
+		) : null}
+
+		{/* --- Tree pane (right side) --- */}
+		<aside
+			className={`relative flex min-h-0 flex-col overflow-hidden border-l border-[var(--inno-border)] transition-opacity duration-200 ${isDragOver ? "border-r border-t border-b border-[var(--inno-border)] bg-[var(--inno-accent-soft)]" : ""} ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+			onDragOver={handleDragOver}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+		>
 				{/* Toolbar */}
 				<div className="flex h-10 items-center gap-1 border-b border-[var(--inno-border)] bg-[var(--inno-surface-muted)] px-2">
 					<div className="min-w-0 flex-1">
@@ -1252,29 +1263,19 @@ export function WorkspaceBrowser() {
 				)}
 			</aside>
 
-			{/* --- Resize handle (overlay, mimics WorkspacePanel) --- */}
-			{showContent && sidebarOpen && (
-				<button
-					className="workspace-resize-handle"
-					style={{ left: `${sidebarWidth - 4}px` }}
-					aria-label={t("common.resize", "拖动调整宽度") ?? ""}
-					title={`${t("common.resize", "拖动调整宽度")} (${Math.round(sidebarWidth)}px)`}
-					onPointerDown={startResize}
-					onDoubleClick={() => setSidebarWidth(TREE_PANE_WIDTH)}
-				/>
-			)}
+			{/* --- Resize handle (overlay, on the tree pane's left edge) --- */}
+		{showContent && sidebarOpen && (
+			<button
+				className="workspace-resize-handle"
+				style={{ left: "auto", right: `${sidebarWidth - 4}px` }}
+				aria-label={t("common.resize", "拖动调整宽度") ?? ""}
+				title={`${t("common.resize", "拖动调整宽度")} (${Math.round(sidebarWidth)}px)`}
+				onPointerDown={startResize}
+				onDoubleClick={() => setSidebarWidth(TREE_PANE_WIDTH)}
+			/>
+		)}
 
-			{/* --- Preview / Edit pane --- */}
-			{showContent ? (
-				<section className="flex min-w-0 min-h-0 flex-col overflow-hidden">
-					<div className="flex min-h-0 flex-1 flex-col">
-						<FileContentPane onToggleSidebar={() => setSidebarOpen((v) => !v)} sidebarOpen={sidebarOpen} />
-					</div>
-					{!simpleMode && <TerminalDrawer />}
-				</section>
-			) : null}
-
-			{/* Context Menu */}
+		{/* Context Menu */}
 			{ctxMenu && <ContextMenu state={ctxMenu} onClose={() => setCtxMenu(null)} treeRef={treeRef} workspaceId={state.activeWorkspaceId ?? undefined} />}
 
 			{/* Delete Confirmation */}
