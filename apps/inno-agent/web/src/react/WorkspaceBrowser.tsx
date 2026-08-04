@@ -1,7 +1,7 @@
 import { createContext, lazy, memo, Suspense, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
-import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2 } from "lucide-react";
+import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelLeftClose, PanelLeftOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2, FilePlus, FolderPlus } from "lucide-react";
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
 import emptyStateUrl from "./ui/Empty-State.svg";
@@ -801,35 +801,56 @@ interface CtxMenuState {
 
 function ContextMenu({ state, onClose, treeRef, workspaceId }: { state: CtxMenuState; onClose: () => void; treeRef: React.RefObject<TreeApi<ArboristNode> | null>; workspaceId?: string }) {
 	const { t } = useTranslation();
-	const items = state.isRoot
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [pos, setPos] = useState<{ top: number; left: number }>({ top: state.y, left: state.x });
+
+	// Adjust position after mount to keep menu within the viewport.
+	useLayoutEffect(() => {
+		const el = menuRef.current;
+		if (!el) return;
+		const r = el.getBoundingClientRect();
+		let left = state.x;
+		let top = state.y;
+		if (left + r.width > window.innerWidth - 8) left = Math.max(8, window.innerWidth - r.width - 8);
+		if (top + r.height > window.innerHeight - 8) top = Math.max(8, window.innerHeight - r.height - 8);
+		setPos({ top, left });
+	}, [state.x, state.y]);
+
+	const items: Array<{ icon: React.ReactNode; label: string; action: () => void; danger?: boolean }> = state.isRoot
 		? [
-			{ label: t("files.newFile", "New File"), action: () => { treeRef.current?.create({ parentId: null, type: "leaf" }); } },
-			{ label: t("files.newFolder", "New Folder"), action: () => { treeRef.current?.create({ parentId: null, type: "internal" }); } },
-			{ label: t("files.downloadFolder", "Download as ZIP"), action: () => { triggerDownload(workspaceFolderZipUrl("", workspaceId)); } },
+			{ icon: <FilePlus size={12} />, label: t("files.newFile", "New File"), action: () => { treeRef.current?.create({ parentId: null, type: "leaf" }); } },
+			{ icon: <FolderPlus size={12} />, label: t("files.newFolder", "New Folder"), action: () => { treeRef.current?.create({ parentId: null, type: "internal" }); } },
+			{ icon: <Download size={12} />, label: t("files.downloadFolder", "Download as ZIP"), action: () => { triggerDownload(workspaceFolderZipUrl("", workspaceId)); } },
 		]
 		: [
-			{ label: t("files.rename", "Rename"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.edit(); } },
+			{ icon: <Pencil size={12} />, label: t("files.rename", "Rename"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.edit(); } },
 			...(state.isDir
-				? [{ label: t("files.downloadFolder", "Download as ZIP"), action: () => { triggerDownload(workspaceFolderZipUrl(state.nodePath, workspaceId)); } }]
-				: [{ label: t("files.download", "Download"), action: () => { triggerDownload(workspaceFileUrl(state.nodePath, workspaceId, true)); } }]),
-			{ label: t("files.delete", "Delete"), action: () => { const n = treeRef.current?.get(state.nodePath); if (n) treeRef.current?.delete(n.id); } },
+				? [{ icon: <Download size={12} />, label: t("files.downloadFolder", "Download as ZIP"), action: () => { triggerDownload(workspaceFolderZipUrl(state.nodePath, workspaceId)); } }]
+				: [{ icon: <Download size={12} />, label: t("files.download", "Download"), action: () => { triggerDownload(workspaceFileUrl(state.nodePath, workspaceId, true)); } }]),
+			{ icon: <Trash2 size={12} />, label: t("files.delete", "Delete"), action: () => { const n = treeRef.current?.get(state.nodePath); if (n) treeRef.current?.delete(n.id); }, danger: true },
 			...(state.isDir ? [
-				{ label: t("files.newFileHere", "New File Here"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.open(); treeRef.current?.create({ parentId: state.nodePath, type: "leaf" }); } },
-				{ label: t("files.newFolderHere", "New Folder Here"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.open(); treeRef.current?.create({ parentId: state.nodePath, type: "internal" }); } },
+				{ icon: <FilePlus size={12} />, label: t("files.newFileHere", "New File Here"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.open(); treeRef.current?.create({ parentId: state.nodePath, type: "leaf" }); } },
+				{ icon: <FolderPlus size={12} />, label: t("files.newFolderHere", "New Folder Here"), action: () => { const n = treeRef.current?.get(state.nodePath); n?.open(); treeRef.current?.create({ parentId: state.nodePath, type: "internal" }); } },
 			] : []),
 		];
 
 	return (
 		<>
-			<div className="fixed inset-0 z-40" onClick={onClose} />
-			<div className="fixed z-50 min-w-[140px] rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] py-1 shadow-lg" style={{ left: state.x, top: state.y }}>
+			<div className="fixed inset-0 z-[90]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+			<div
+				ref={menuRef}
+				className="fixed z-[100] whitespace-nowrap rounded-lg border border-[var(--inno-border)] bg-[var(--inno-surface)] py-1 shadow-lg"
+				style={{ top: pos.top, left: pos.left }}
+			>
 				{items.map((item) => (
 					<button
 						key={item.label}
-						className="flex w-full items-center px-3 py-1.5 text-left text-xs text-[var(--inno-text)] hover:bg-[var(--inno-surface-muted)]"
+						className={`flex w-full items-center gap-2 pl-2 pr-8 py-1 text-left leading-tight transition-colors hover:bg-[var(--inno-surface-muted)] ${item.danger ? "text-[var(--inno-danger)]" : "text-[var(--inno-text)]"}`}
+						style={{ fontSize: "11px" }}
 						onClick={() => { item.action(); onClose(); }}
 					>
-						{item.label}
+						{item.icon}
+						<span>{item.label}</span>
 					</button>
 				))}
 			</div>
