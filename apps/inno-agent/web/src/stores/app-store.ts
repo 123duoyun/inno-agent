@@ -30,12 +30,15 @@ class AppStoreImpl extends EventEmitter<AppStoreEvents> {
 		this.settingsOpen = true;
 		this.activeSettingsTab = tab;
 		this.emit("change", undefined);
+		// 通知父页面（auth-service 沙箱宿主）隐藏其左下角用户浮层，避免覆盖设置页
+		notifyParentSettings(true);
 	}
 
 	closeSettings() {
 		if (!this.settingsOpen) return;
 		this.settingsOpen = false;
 		this.emit("change", undefined);
+		notifyParentSettings(false);
 	}
 
 	setSettingsTab(tab: SettingsTab) {
@@ -120,6 +123,13 @@ function getInitialRightPanelTab(): RightPanelTab {
 function getInitialSettingsOpen(): boolean {
 	if (typeof window === "undefined") return false;
 	return new URLSearchParams(window.location.search).get("tab") === "settings";
+}
+
+/** 嵌入在跨域 iframe 中时，通知父页面设置页的打开/关闭状态 */
+function notifyParentSettings(open: boolean) {
+	if (typeof window !== "undefined" && window.parent && window.parent !== window) {
+		window.parent.postMessage({ type: "inno-settings", open }, "*");
+	}
 }
 
 export const appStore = new AppStoreImpl();
