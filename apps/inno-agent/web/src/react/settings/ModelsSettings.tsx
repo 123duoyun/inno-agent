@@ -4,7 +4,7 @@ import { Trash2, Pencil, X, ChevronDown, ChevronRight } from "lucide-react";
 import { settingsStore } from "../../stores/settings-store.js";
 import type { InnoModelInfo, InnoProviderModel as ProviderModel, InnoSettings } from "../../types/settings.js";
 import { useStoreSnapshot } from "../hooks.js";
-import { checkboxCls } from "../ui/checkbox.js";
+import { checkboxCls } from "../ui/Checkbox.js";
 import { SettingsSection, SettingsCard } from "./primitives.js";
 import { formatTokens, modelKey } from "./shared.js";
 import { AddProviderWizard, ProviderIcon } from "./AddProviderWizard.js";

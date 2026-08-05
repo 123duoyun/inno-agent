@@ -6,7 +6,7 @@ import { settingsStore } from "../../stores/settings-store.js";
 import { feishuQrRegister, feishuQrStatus, wechatQrLogin, wechatQrStatus, wechatStatus } from "../../api/settings.js";
 import type { InnoSettings, ChannelsSettingsPayload, PersonalBridgeChannelConfig } from "../../types/settings.js";
 import { inputCls } from "../ui/input.js";
-import { checkboxCls } from "../ui/checkbox.js";
+import { checkboxCls } from "../ui/Checkbox.js";
 import { Switch } from "../ui/Switch.js";
 import { SettingsSection } from "./primitives.js";
 

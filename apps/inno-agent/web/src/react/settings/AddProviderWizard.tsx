@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Plus, ExternalLink, RefreshCw, Check } from 
 import { settingsStore } from "../../stores/settings-store.js";
 import { probeProviderModels } from "../../api/settings.js";
 import type { InnoProviderModel as ProviderModel, InnoProviderSettings } from "../../types/settings.js";
-import { checkboxCls } from "../ui/checkbox.js";
+import { checkboxCls } from "../ui/Checkbox.js";
 import { formatTokens } from "./shared.js";
 import { PROVIDER_PRESETS, findPreset, type ProviderPreset } from "./provider-presets.js";
 import { inferModelMetadata } from "./model-metadata.js";
