@@ -8,6 +8,7 @@ import { checkboxCls } from "../ui/Checkbox.js";
 import { formatTokens } from "./shared.js";
 import { PROVIDER_PRESETS, findPreset, type ProviderPreset } from "./provider-presets.js";
 import { inferModelMetadata } from "./model-metadata.js";
+import exclamationUrl from "../ui/exclamation.svg";
 
 const apiOptions = ["openai-completions", "openai-responses", "anthropic-messages"];
 
@@ -338,7 +339,7 @@ export function AddProviderWizard({ providers }: { providers: Record<string, Inn
 								</label>
 							</div>
 
-							{formError ? <div className="mt-2 rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]">{formError}</div> : null}
+							{formError ? <div className="mt-2 flex items-center gap-2 rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]"><img src={exclamationUrl} className="h-3.5 w-3.5 shrink-0" alt="" />{formError}</div> : null}
 							<div className="mt-3 flex gap-2">
 								<button className="rounded-md inno-primary-button px-3 py-1.5 text-xs text-white disabled:opacity-50" disabled={saving} onClick={() => void handleSave()}>
 									{saving ? t("settings.savingProvider") : t("settings.saveProvider")}

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
-import { Spinner } from "./ui/Spinner.js";
+
 import emptyStateUrl from "./ui/Empty-State.svg";
 import loadingGif from "./ui/loading.gif";
 import { learnerStore } from "../stores/learner-store.js";

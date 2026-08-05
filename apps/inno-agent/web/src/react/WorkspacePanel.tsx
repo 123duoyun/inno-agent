@@ -1,7 +1,8 @@
 import { Component, lazy, Suspense, useCallback, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { PanelRightOpen, PanelRightClose, Columns2, Maximize2, BookOpen, BriefcaseBusiness, FolderKanban, Sparkles, UserRound } from "lucide-react";
+import { PanelRightOpen, PanelRightClose, Columns2, Maximize2, BookOpen, BriefcaseBusiness, FolderKanban, Settings, Sparkles, UserRound } from "lucide-react";
+import { appStore } from "../stores/app-store.js";
 import type { RightPanelTab, WorkspaceMode } from "../stores/app-store.js";
 import { settingsStore } from "../stores/settings-store.js";
 import { useStoreSnapshot } from "./hooks.js";
@@ -178,7 +179,14 @@ export function WorkspacePanel({ activeTab, mode, width, onTabChange, onModeChan
 					})}
 				</div>
 				<div className="ml-1 flex shrink-0 items-center gap-1 border-l border-[var(--inno-border)] pl-1">
-					<button
+				<button
+					className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+					title={t("settings.title") ?? ""}
+					onClick={() => appStore.openSettings()}
+				>
+					<Settings size={14} />
+				</button>
+				<button
 					className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
 					title={mode === "full" ? (t("workspace.half") ?? "") : (t("workspace.full") ?? "")}
 					onClick={() => onModeChange(mode === "full" ? "half" : "full")}

@@ -5,7 +5,7 @@ import { parseFrontmatter } from "../../utils/frontmatter.js";
 import { normalizeMarkdownMath } from "../../utils/markdown-math.js";
 import { useStoreSnapshot } from "../hooks.js";
 import "@earendil-works/pi-web-ui";
-import { Spinner } from "../ui/Spinner.js";
+
 import { LazyMarkdownEditor } from "../LazyMarkdownEditor.js";
 import loadingGif from "../ui/loading.gif";
 

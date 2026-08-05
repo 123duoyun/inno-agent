@@ -9,6 +9,7 @@ import { inputCls } from "../ui/input.js";
 import { checkboxCls } from "../ui/Checkbox.js";
 import { Switch } from "../ui/Switch.js";
 import { SettingsSection } from "./primitives.js";
+import exclamationUrl from "../ui/exclamation.svg";
 
 const labelCls = "mb-0.5 block text-[10px] text-[var(--inno-text-muted)]";
 const checkCls = "flex items-center gap-1.5 text-xs text-[var(--inno-text-muted)]";
@@ -214,10 +215,10 @@ function FeishuChannel({ settings, state, onStateChange }: {
 				) : null}
 				{(!qrState || qrState === "confirmed" || qrState === "expired" || qrState === "denied") && (
 					<QrActionButton label={t("settings.feishu.qrRegister")} onClick={startQrRegister} />
-				)}
-				{qrError && (
-					<div className="rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]">{qrError}</div>
-				)}
+			)}
+			{qrError && (
+				<div className="flex items-center gap-2 rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]"><img src={exclamationUrl} className="h-3.5 w-3.5 shrink-0" alt="" />{qrError}</div>
+			)}
 			</QrPanel>
 
 			{state.enabled && (
@@ -354,10 +355,10 @@ function WechatChannel({ settings, state, onStateChange }: {
 						label={connected ? t("settings.channels.wechat.relogin") : t("settings.channels.wechat.scanLogin")}
 						onClick={() => void startQrLogin()}
 					/>
-				)}
-				{qrError && (
-					<div className="rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]">{qrError}</div>
-				)}
+			)}
+			{qrError && (
+				<div className="flex items-center gap-2 rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]"><img src={exclamationUrl} className="h-3.5 w-3.5 shrink-0" alt="" />{qrError}</div>
+			)}
 			</QrPanel>
 
 			{state.enabled && (
@@ -518,7 +519,7 @@ export function ChannelsSettings({ settings }: { settings: InnoSettings }) {
 			)}
 
 			<div className="grid justify-items-start gap-2">
-				{formError && <div className="w-full rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]">{formError}</div>}
+				{formError && <div className="w-full flex items-center gap-2 rounded bg-[var(--inno-danger-bg)] px-2 py-1 text-xs text-[var(--inno-danger)]"><img src={exclamationUrl} className="h-3.5 w-3.5 shrink-0" alt="" />{formError}</div>}
 				{saveMsg && <div className="w-full rounded bg-[var(--inno-success-bg)] px-2 py-1 text-xs text-[var(--inno-success)]">{saveMsg}</div>}
 				<button
 					className="rounded-md inno-primary-button px-3 py-1.5 text-xs text-white disabled:opacity-50"

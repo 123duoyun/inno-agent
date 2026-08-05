@@ -6,6 +6,7 @@ import type { WikiStats } from "../../types/wiki.js";
 import { useStoreSnapshot } from "../hooks.js";
 import { SettingsSection, SettingsCard } from "./primitives.js";
 import { formatBytes } from "./shared.js";
+import exclamationUrl from "../ui/exclamation.svg";
 
 export function AboutSettings() {
 	const { t } = useTranslation();
@@ -32,7 +33,7 @@ export function AboutSettings() {
 					</button>
 				</div>
 				{state.isLoading ? <div className="text-sm text-[var(--inno-text-muted)]">{t("settings.loading")}</div> : null}
-				{state.error ? <div className="rounded bg-[var(--inno-danger-bg)] p-2 text-sm text-[var(--inno-danger)]">{state.error}</div> : null}
+				{state.error ? <div className="my-2 flex items-center gap-2 rounded bg-[var(--inno-danger-bg)] p-2 text-sm text-[var(--inno-danger)]"><img src={exclamationUrl} className="h-4 w-4 shrink-0" alt="" />{state.error}</div> : null}
 				<div className="settings-stats-grid grid gap-3 text-sm">
 					<div className="rounded border border-[var(--inno-border)] bg-[var(--inno-surface-muted)] p-3">
 						<div className="text-xs text-[var(--inno-text-muted)]">{t("settings.stats.server")}</div>

@@ -1,7 +1,7 @@
 import { createContext, lazy, memo, Suspense, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Tree, type NodeRendererProps, type TreeApi, type NodeApi, type CreateHandler, type RenameHandler, type DeleteHandler, type MoveHandler } from "react-arborist";
-import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, Save, X, PanelRightClose, PanelRightOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2, FilePlus, FolderPlus } from "lucide-react";
+import { FileText, FileType, Globe, File, FolderOpen, Folder, Pencil, X, PanelRightClose, PanelRightOpen, Sparkles, Download, FileCode2, Presentation, FileSpreadsheet, Copy, Check, MoreHorizontal, ListChecks, Trash2, FilePlus, FolderPlus } from "lucide-react";
 import uploadUrl from "./ui/upload.svg";
 import refreshUrl from "./ui/refresh.svg";
 import emptyStateUrl from "./ui/Empty-State.svg";
