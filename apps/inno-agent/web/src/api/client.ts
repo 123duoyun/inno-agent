@@ -8,10 +8,21 @@ export class ApiError extends Error {
 	}
 }
 
-const BASE_URL = ""; // Same origin — Vite proxy in dev
+/**
+ * 将请求路径转换为相对路径（去掉前导 /）。
+ * 在 sandbox iframe 中，文档 URL 为 https://sandbox.innoagent.tech/sandbox/{id}/，
+ * 相对路径会自动带上 /sandbox/{id}/ 前缀，命中 Kong 主路由从路径解析 sandbox id，
+ * 不再依赖被 Safari ITP 拦截的第三方 cookie。
+ * dev 模式下文档 URL 为 http://localhost:5173/，相对路径仍命中 Vite proxy 的 /api。
+ */
+function toRelativePath(path: string): string {
+	// 完整 URL 或协议相对 URL 不处理
+	if (/^(https?:)?\/\//.test(path)) return path;
+	return path.replace(/^\/+/, "");
+}
 
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-	const res = await fetch(`${BASE_URL}${path}`, {
+	const res = await fetch(toRelativePath(path), {
 		headers: { "Content-Type": "application/json", ...options?.headers },
 		...options,
 	});
@@ -87,7 +98,7 @@ async function* readSSEStream<T>(res: Response, signal?: AbortSignal): AsyncGene
 export async function* streamSSE<T>(url: string, body: unknown, signal?: AbortSignal): AsyncGenerator<T> {
 	let res: Response;
 	try {
-		res = await fetch(url, {
+		res = await fetch(toRelativePath(url), {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(body),
@@ -111,7 +122,7 @@ export async function* streamSSE<T>(url: string, body: unknown, signal?: AbortSi
 export async function* streamSSEGet<T>(url: string, signal?: AbortSignal, options: { allowNotFound?: boolean } = {}): AsyncGenerator<T> {
 	let res: Response;
 	try {
-		res = await fetch(url, { method: "GET", signal });
+		res = await fetch(toRelativePath(url), { method: "GET", signal });
 	} catch (err) {
 		if (signal?.aborted) return;
 		throw err;

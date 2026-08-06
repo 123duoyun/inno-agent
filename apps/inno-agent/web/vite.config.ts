@@ -125,6 +125,7 @@ function precompressStaticAssetsPlugin(thresholdBytes = 10 * 1024): Plugin {
 }
 
 export default defineConfig({
+	base: "./",
 	optimizeDeps: {
 		// Serve mini-lit as plain ESM so patchMiniLitMarkedPlugin's transform
 		// hook sees MarkdownBlock.js in dev mode (prebundled deps skip transforms).
