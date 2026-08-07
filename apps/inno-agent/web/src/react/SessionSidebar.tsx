@@ -375,10 +375,10 @@ function SessionCard({
 	return (
 		<div
 			className={`group/card relative mb-0 w-full cursor-pointer rounded-lg border border-transparent pl-[15px] pr-1.5 py-1 text-left transition-all duration-150 ${
-				active
-					? "border-[var(--inno-border)] bg-white"
-					: ""
-			}`}
+			active
+				? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)]"
+				: "text-[var(--inno-text)] hover:bg-[#E6E6E9]"
+		}`}
 			role="button"
 			tabIndex={0}
 			onMouseDown={(e) => e.preventDefault()}
@@ -407,9 +407,9 @@ function SessionCard({
 						}}
 					/>
 				) : (
-					<div className="inno-sidebar-title min-w-0 truncate font-medium text-[var(--inno-text)] transition-colors group-hover/card:text-[var(--inno-text)]">
-						{session.name}
-					</div>
+					<div className="inno-sidebar-title min-w-0 truncate font-medium">
+					{session.name}
+				</div>
 				)}
 				<button
 				className="inno-sidebar-meta relative flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 tabular-nums text-[var(--inno-text-subtle)] transition-colors hover:bg-[var(--inno-accent-soft)] hover:text-[var(--inno-accent)]"
@@ -946,7 +946,8 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 					onPointerDown={startResize}
 				/>
 				{/* Header: brand + collapse */}
-				<div className="flex items-center justify-between gap-2 pr-3 ml-[30px] mt-[40px]">
+			<div className="pr-3 ml-[30px] mt-[40px]">
+				<div className="flex items-center justify-between gap-2">
 					<div className="flex min-w-0 items-center gap-2">
 						<button
 							type="button"
@@ -977,14 +978,17 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 							<InnoLogoText className="h-[30px] w-auto" />
 						</h1>
 					</div>
-					<button
-					className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
-					title={t("sidebar.collapse")}
-					onClick={() => appStore.setSidebarCollapsed(true)}
-				>
-					<PanelLeftClose size={14} />
-				</button>
+					<div className="flex items-center gap-1">
+						<button
+							className="inno-toolbar-icon-btn flex h-7 w-7 items-center justify-center rounded-full"
+							title={t("sidebar.collapse")}
+							onClick={() => appStore.setSidebarCollapsed(true)}
+						>
+							<PanelLeftClose size={14} />
+						</button>
+					</div>
 				</div>
+			</div>
 
 			<div className="mt-[20px]">
 				<ModeSwitch simpleMode={simpleMode} />
@@ -1027,13 +1031,13 @@ export function SessionSidebar({ collapsed, width, onWidthChange }: SessionSideb
 											openSession(session);
 										}
 									}}
-									className={`group/srow relative mb-1 block w-full cursor-pointer rounded-xl border border-transparent py-2 pl-[3px] -ml-[3px] text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus:outline-none focus:ring-0 focus:shadow-none ${
-										state.currentSessionId === session.id
-											? "border-[var(--inno-border)] bg-white"
-											: ""
-									}`}
-								>
-									<div className="inno-sidebar-title min-w-0 truncate pr-5 font-medium text-[var(--inno-text)]">{session.name}</div>
+									className={`group/srow relative mb-1 block w-full cursor-pointer rounded-xl border border-transparent py-2 pl-[3px] -ml-[3px] text-left transition-all duration-150 focus:outline-none ${
+									state.currentSessionId === session.id
+										? "bg-[var(--inno-accent-soft)] text-[var(--inno-accent)]"
+										: "text-[var(--inno-text)] hover:bg-[#E6E6E9]"
+								}`}
+							>
+								<div className="inno-sidebar-title min-w-0 truncate pr-5 font-medium">{session.name}</div>
 									<button
 										className="absolute right-0 top-0 rounded p-0.5 text-[var(--inno-text-subtle)] opacity-0 transition-opacity hover:bg-[var(--inno-danger-bg)] hover:text-[var(--inno-danger)] group-hover/srow:opacity-100"
 										title={t("sidebar.deleteConversation")}
